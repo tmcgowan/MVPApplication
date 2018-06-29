@@ -1,0 +1,24 @@
+{
+  "name": "mvpapp4",
+  "version": "1.0.0",
+  "description": "MVP Viewer",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/js/modules/*.js",
+    "dev_clean": "rm application.js",
+    "dev_build": "cat src/js/modules/*js > application.js && cat app.js >> application.js",
+    "dev_run": "npm run dev_build",
+    "dev_cp": "rm -rf /Users/mcgo0092/CurrentGalaxy/galaxy/config/plugins/visualizations/mvpapp4 && cp -r mvpapp4 /Users/mcgo0092/CurrentGalaxy/galaxy/config/plugins/visualizations/",
+    "dev_place": "npm run dev_run && cp -r mvpapp4.mako mvpapp4/templates/ && cp -r mvpapp4.xml mvpapp4/config/ && cp -r src/css/* mvpapp4/static/css/ && cp -r src/js/lib/* mvpapp4/static/js/lib && cp -r application.js mvpapp4/static/js/ && npm run dev_cp"
+  },
+  "devDependencies": {
+    "babel-eslint": "7.2.1",
+    "eslint": "3.19.0",
+    "eslint-config-standard": "11.0.0",
+    "eslint-plugin-react": "6.10.3",
+    "eslint-plugin-standard": "3.1.0"
+  },
+  "author": "Thomas McGowan <mcgo0092@umn.edu>",
+  "license": "MIT"
+}

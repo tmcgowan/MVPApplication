@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="src/css/datatables.min.css" rel="stylesheet">
+    <link href="src/css/app.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12"><h2>MVP POC</h2></div>
+            <div class="col-md-12"><strong>Filter on Peptide Sequence(s): </strong><input id="sequence-filter" type="text" size="50"></div> 
+        </div>
+        <table id="data-table" class="table table-bordered" cellspacing="0" width="100%"></table>
+        <div></div>
+        <table id="detail-table" class="table table-bordered" cellspacing="0" width="100%"></table>
+    </div>
+
+    <script src="src/js/lib/jquery.min.js"></script>
+    <script src="src/js/lib/datatables.min.js"></script>
+    <script src="src/js/modules/AjaxDataProvider.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var dp = new AjaxDataProvider({
+                rowIDField: 'Peptide_pkid',
+                baseQuery: {
+                    'SELECT': 'pe.Peptide_pkid, Peptide.sequence, COUNT(DISTINCT(pe.DBSequence_pkid)) AS ProteinCount, COUNT(DISTINCT(pe.SpectrumIdentification_pkid)) AS SpectralCount',
+                    'FROM': 'PeptideEvidence pe, Peptide',
+                    'WHERE': 'pe.Peptide_pkid = Peptide.pkid',
+                    'GROUPBY': 'pe.Peptide_pkid',
+
+                },
+                href: 'http://localhost:8080',
+                historyID: 'ebfb8f50c6abde6d',
+                datasetID: 'ebfb8f50c6abde6d',
+                searchColumn: 'Peptide.sequence',
+                searchTable: 'Peptide',
+                columnNames: [{
+                        'data': 'Peptide_pkid',
+                        'title': 'Peptide_pkid'
+                    },
+                    {
+                        'data': 'ProteinCount',
+                        'title': 'ProteinCount'
+                    },
+                    {
+                        'data': 'SpectralCount',
+                        'title': 'SpectralCount'
+                    },
+                    {
+                        'data': 'sequence',
+                        'title': 'sequence'
+                    }
+                ]
+            })
+            
+            // Note: use dom option to hide the search/filter input box
+            // need to run the search from our own input box.
+           var table = $('#data-table').DataTable({
+                dom: 'lrtip',
+                order: [
+                    [2, 'DESC']
+                ],
+                processing: true,
+                serverSide: true,
+                ajax: function (data, callback) {
+                    dp.provideData(data, callback)
+                },
+                columns: dp.getColumnNames()
+            });
+
+            $('#data-table tbody').on('click', 'tr', function () {
+                $(this).toggleClass('selected-peptide');
+                
+                var scoreDP = new AjaxDataProvider({
+                rowIDField: 'Score.pkid',
+                baseQuery: {
+                    'SELECT': 'DISTINCT(Score.pkid) AS pkid, Score."PeptideShaker PSM confidence type" AS PSMConfType,Score."OMSSA:evalue" AS OMSSAEv,Score."PeptideShaker PSM score" AS PSMScore,Score."X!Tandem:expect" AS XTandemEx',
+                    'FROM': 'PeptideEvidence pe, Score',
+                    'WHERE': 'pe.Peptide_pkid = 19996 AND Score.SpectrumIdentification_pkid = pe.SpectrumIdentification_pkid'
+
+                },
+                href: 'http://localhost:8080',
+                historyID: 'ebfb8f50c6abde6d',
+                datasetID: 'ebfb8f50c6abde6d',
+                columnNames: [
+                	{
+                		'data': 'pkid',
+                		'title': 'pkid'
+                	},
+                	{
+                        'data': 'PSMConfType',
+                        'title': 'PSMConfType'
+                    },
+                    {
+                        'data': 'OMSSAEv',
+                        'title': 'OMSSAEv'
+                    },
+                    {
+                        'data': 'PSMScore',
+                        'title': 'PSMScore'
+                    },
+                    {
+                        'data': 'XTandemEx',
+                        'title': 'XTandemEx'
+                    },
+                    {
+                        'data': 'PSMScore',
+                        'title': 'PSMScore'
+                    },
+                    {
+                        'data': 'PSMScore',
+                        'title': 'PSMScore'
+                    }
+                ]
+            });
+
+            var detailTable = $('#detail-table').DataTable({
+                dom: 'lrtip',
+                processing: true,
+                serverSide: true,
+                ajax: function (data, callback) {
+                    scoreDP.provideData(data, callback)
+                },
+                columns: scoreDP.getColumnNames()
+            });
+               
+
+
+
+
+                console.log(table.row(this).data());
+            });
+        });
+
+        // React to change in filter input box value
+        $('#sequence-filter').on('change', function(){
+            var table = $('#data-table').DataTable();
+            console.log('It changed.');
+            table.search( this.value ).draw();
+        })
+
+    </script>
+
+</body>
+
+</html>

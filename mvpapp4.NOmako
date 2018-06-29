@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MVP App 4 New Schema</title>
+
+    <link href="/plugins/visualizations/mvpapp4/static/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="/plugins/visualizations/mvpapp4/static/css/lorikeet.css" rel="stylesheet">
+    <link href="/plugins/visualizations/mvpapp4/static/css/datatables.min.css" rel="stylesheet">
+    <link href="/plugins/visualizations/mvpapp4/static/css/app.css" rel="stylesheet">
+    <link href="/plugins/visualizations/mvpapp4/static/css/msi.css" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- Modal for use by all code -->
+<div id="master_modal"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">MVP Viewer</a>
+        </div>
+        <div id="user_btns">
+                <div id="app_btns" class="btn-group" role="group">
+                    <button class="btn btn-primary navbar-btn" disabled="disabled">Defaults</button>
+                    <button class="btn btn-primary navbar-btn" disabled="disabled">Reset</button>
+                    <button id="scans-to-galaxy" class="btn btn-primary navbar-btn">Verified Scans <span id="scan-count-badge" class="badge">0</span></button>
+                </div>
+            </div>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+</nav>
+<!-- END NAVBAR -->
+
+<!-- Main content -->
+<div class="container">
+    <div id="progress-div"></div>
+    <div id="protein_viewer"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3 id="dataset_name"></h3>
+        </div>
+    </div>
+    <div class="row" id="overview_row">
+        <div id="overview_div" class="col-md-12"></div>
+    </div>
+    <div class="row">
+        <div id="detail_div" class="col-md-12"></div>
+    </div>
+    <div class="row">
+        <div id="lorikeet_zone" class="col-md-12"></div>
+    </div>
+</div>
+
+
+<script src="/plugins/visualizations/mvpapp4/static/js/lib/jquery.min.js"></script>
+<script src="/plugins/visualizations/mvpapp4/static/js/lib/jquery-ui.min.js"></script>
+<script src="/plugins/visualizations/mvpapp4/static/js/lib/lorikeet_lib.js"></script>
+<script src="/plugins/visualizations/mvpapp4/static/js/lib/datatables.min.js"></script>
+<script src="/plugins/visualizations/mvpapp4/static/js/lib/d3.js"></script>
+<script src="/plugins/visualizations/mvpapp4/static/js/application.js"></script>
+
+<script>
+    $(document).ready(function (){
+        var config = {
+            % if pageargs['saved_visualization']:
+                                        savedVizConfig: {
+                                        detailObj: "${pageargs['config']['dataState']['encodedDetail']}",
+                                        data_table: {
+                                            requestObject: "${pageargs['config']['dataState']['data_table']['encodedRO']}"
+                                            }
+                                        },
+                                % endif
+                                href: document.location.origin,
+                                % if pageargs['saved_visualization']:
+                                    dataName: '${pageargs['title']}',
+                                % else:
+                                    dataName: '${hda.name}',
+                                % endif
+                                tableNames: ['Proteins', 'Peptides'],
+                                historyID: '${trans.security.encode_id( hda.history_id )}',
+                                datasetID: '${trans.security.encode_id( hda.id )}',
+                                tableRowCount: {
+                                    % for table in hda.metadata.table_row_count:
+                                        '${table}': ${hda.metadata.table_row_count[table]} ,
+                                    % endfor
+                                },
+                                tableColumns: {
+                                    % for k in hda.metadata.table_columns:
+                                        '${k}': [
+                                            % for v in hda.metadata.table_columns[k]:
+                                                '${v}',
+                                            % endfor
+                                        ],
+                                    % endfor
+                            }
+                            };
+         MVPApplication.run(config);
+    });
+</script>
+</body>
+</html>
