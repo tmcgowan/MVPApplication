@@ -2,27 +2,21 @@
 
 /**
  * Module code for creating and managing the IGV.js browser.
+ * 
+ * Galaxy history entry for the MZ.Sqlite _must_ have a valid DBKey assigned.
  * @param confObj
  * @constructor
  */
 function IGVModule(confObj) {
-
-    this.validBroadIDs = ["hg38", "hg19", "hg18", "mm10"];
 
     this.addTrackCB = confObj.addTrackCB;
     this.igvDiv = confObj.igvDiv;
     this.data = confObj.data;
     this.genome = confObj.dbkey || "hg19"; //A default value
     this.hidden = false;
-
-    if (this.checkGenomeValues(this.validBroadIDs, confObj.dbkey)) {
-        this.genome = confObj.dbkey;
-    }
+    this.fasta_file = confObj.fasta_file;
+    this.fasta_index = confObj.fasta_index;
 }
-
-IGVModule.prototype.checkGenomeValues = function (arr, val) {
-    return arr.some(arrVal => val === arrVal);
-};
 
 //Build all the custom UI surrounding the IGV browser.
 IGVModule.prototype.fillChrome = function () {
@@ -62,7 +56,10 @@ IGVModule.prototype.goToLocation = function (loc) {
 
 IGVModule.prototype.showBrowser = function () {
     let options = {
-        reference: {"id": this.genome},
+        reference: {
+            fastaURL: this.fasta_file,
+            indexURL: this.fasta_index,
+        },
         locus: this.data.chrom + ":" + this.data.start + "-" + this.data.end
     };
     this.fillChrome();
@@ -70,8 +67,6 @@ IGVModule.prototype.showBrowser = function () {
 };
 
 var IGVManager = (function (igm) {
-    let dbkey = "mm10";
-    let validBroadIDs = ["hg38", "hg19", "hg18", "mm10"];
     let validTrackFiles = null;
 
     igm.goToLocation = function(strL) {
@@ -150,54 +145,23 @@ var IGVManager = (function (igm) {
         igm.browser.showBrowser();
     };
 
-    igm.showModal = function (confObj) {
-        let s = '<div class="modal fade" id="genome_key" tabindex="-1" data-backdrop="false" role="dialog">' +
-            '<div class="modal-dialog" role="document">\n' +
-            '    <div class="modal-content">\n' +
-            '      <div class="modal-header">\n' +
-            '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-            '        <h4 class="modal-title">Set Genome ID</h4>\n' +
-            '      </div>\n' +
-            '      <div class="modal-body">\n' +
-            '        <p>This dataset does not have an associated genome DB key. Please choose a genome ID.</p>\n' +
-            '      <ul class="list-group">##ID_LIST##</ul>' +
-            '      </div>\n' +
-            '      <div class="modal-footer">\n' +
-            '        <button id="set-genome-id" type="button" class="btn btn-primary">Save changes</button>\n' +
-            '      </div>\n' +
-            '    </div><!-- /.modal-content -->\n' +
-            '  </div><!-- /.modal-dialog --></div>';
-        let idList = '';
-        validBroadIDs.forEach(function (cv) {
-            //<li class="list-group-item">Cras justo odio</li>
-            idList += '<li class="list-group-item genome-id-item">' + cv + '</li>';
-        });
-        s = s.replace('##ID_LIST##', idList);
-        $('#master_modal').empty().append(s);
-
-        $('.genome-id-item').on('click', function () {
-            $('.genome-id-item').removeClass('selected');
-            $(this).addClass('selected');
-        });
-
-        $('#set-genome-id').on('click', function () {
-            let rVal = $('.genome-id-item.selected').text();
-            if (rVal.length > 0) {
-                dbkey = rVal;
-                console.log('Assigning ' + rVal);
-            } else {
-                console.log('User does not choose an ID. Assigning MM10');
-            }
-            $('#genome_key').modal('hide');
-            confObj.dbkey = rVal;
-            igm.createNewBrowser(confObj);
-        });
-
-        $('#genome_key').modal({'backdrop': false});
-    };
 
     igm.buildModule = function (confOb) {
-        igm.createNewBrowser(confOb);
+        //Get URI for index file and fasta file, URI call will be based on dbkey.
+        //http://localhost:8080/api/genomes/mmXX/genome_uri
+        let uri = this.galaxyConfiguration.href + '/api/genomes/' + 
+            this.galaxyConfiguration.dbkey + '/genome_uri';
+        let cobj = confObj;
+        fetch(uri)
+            .then((resp) => resp.json())
+            .then(function(data){
+                confOb.fasta_file = data["fasta_file"];
+                confOb.fasta_index = data["fasta_index"];
+                igm.createNewBrowser(cobj);
+        }).catch(function(error){
+            console.log(error);
+        }) 
+        
     };
 
     igm.init = function(confObj) {
@@ -523,10 +487,12 @@ let PSMProteinViewer = (function () {
                             options.igvDiv = self.igvDiv;
                             options.data = d;
                             options.dbkey = self.dbkey;
-                            //Does self have a dbkey assigned? If not, query user.
+                            //Does self have a dbkey assigned? If not, inform the
+                            //user they must associated the history entry with a
+                            //reference genome.
                             if (self.dbkey === "?") {
-                                //show modal and get genome
-                                IGVManager.showModal(options);
+                                //TODO: modal, message banner or something else besides alert??
+                                alert('The mz.sqlite database must be associated with a reference genome');
                             } else {
                                 IGVManager.buildModule(options);
                             }
