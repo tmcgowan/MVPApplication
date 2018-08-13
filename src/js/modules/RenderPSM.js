@@ -337,6 +337,7 @@ var RenderPSM = (function(rpm){
         $('#clear_scans').removeAttr("disabled").on('click', function(){
             $('#lorikeet_zone').children().each(function(){$(this).remove()});
             $(this).attr('disabled', 'disabled');
+            $('#clear_scans').tooltip('hide');
         });
     };
 
@@ -351,6 +352,13 @@ var RenderPSM = (function(rpm){
                 spectrumTitle: arg.spectrumTitle
             });
             rpm.manageClearing();
+
+
+            $('html, body').animate({
+                scrollTop: ($('#lorikeet_zone').offset().top)
+            },1000);
+
+
         });
 
         rpm.subscribe('renderBestPSM', function(arg){
@@ -360,6 +368,9 @@ var RenderPSM = (function(rpm){
                 scoreField: arg.scoreField,
                 sortDir: arg.sortDir
             });
+            $('html, body').animate({
+                scrollTop: ($('#lorikeet_zone').offset().top)
+            },1000);
             rpm.manageClearing();
         });
     };

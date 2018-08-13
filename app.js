@@ -97,6 +97,10 @@ var MVPApplication = (function (app) {
             $('#fdr_module').removeAttr('disabled')
                 .on('click', function(){
                     $('#fdr_div').toggle();
+                    $('html, body').animate({
+                        scrollTop: ($('#fdr_div').offset().top)
+                    },500);
+                    $('#fdr_module  ').tooltip('hide')
                 });
 
         });
@@ -162,6 +166,7 @@ var MVPApplication = (function (app) {
                 callBackFN: PeptideView.reBuildTable
             });
         }
+        $('[data-toggle="tooltip"]').tooltip();
     };
 
     return {

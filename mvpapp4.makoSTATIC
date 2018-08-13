@@ -29,10 +29,10 @@
         </div>
         <div id="user_btns">
                 <div id="app_btns" class="btn-group" role="group">
-                    <button id="fdr_module" class="btn btn-primary navbar-btn" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Distribution of spectral matching identification scores">ID Scores</button>
-                    <button id="score_defaults" class="btn btn-primary navbar-btn" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Select identification features for display">ID Features</button>
-                    <button id="scans-to-galaxy" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="bottom" title="Exports list of verified PSMs to active history">Export Scans <span id="scan-count-badge" class="badge">0</span></button>
-                    <button id="clear_scans" class="btn btn-primary navbar-btn" disabled="disabled" data-container="body" data-toggle="tooltip" data-placement="bottom" title="Clears all scans">Clear all Scans</button>
+                    <button id="fdr_module" class="btn btn-primary navbar-btn" disabled="disabled">FDR Data</button>
+                    <button id="score_defaults" class="btn btn-primary navbar-btn" disabled="disabled">Visible Scores</button>
+                    <button id="scans-to-galaxy" class="btn btn-primary navbar-btn">Verified Scans <span id="scan-count-badge" class="badge">0</span></button>
+                    <button id="clear_scans" class="btn btn-primary navbar-btn" disabled="disabled">Clear all Scans</button>
                 </div>
             </div>
         </div>

@@ -32,33 +32,32 @@ var PeptideView = (function (pv) {
     pv.domEdit = function () {
         var e = $('#' + pv.baseDiv);
         e.empty();
-
+        var tt = "Generate a single MSMS scan for each peptide in the overview table. The best MSMS will be determined by the chosen score.";
         e.append($.parseHTML('<div class="panel panel-default"> ' +
             '<div class="panel-heading"><h3 class="panel-title">Peptide Overview</h3></div>' +
             '<div class="row">' +
             '<div class="col-md-6">' +
             '<div id="pep-functions" class="btn-group" role="group">' +
-            '<button id="btn-load-from-galaxy" type="button" class="btn btn-primary" disabled="disabled">Load from Galaxy</button>' +
-            '<button id="btn-view-in-protein" type="button" class="btn btn-primary" disabled="disabled">View in Protein</button>' +
-            '<div class="btn-group">' +
-            '<button type="button" class="btn btn-primary render-btn">Render</button>' +
-            '<button type="button" class="btn btn-primary dropdown-toggle render-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
+            '<button id="btn-load-from-galaxy" type="button" class="btn btn-primary" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Enlists datasets from Galaxy history for loading">Load from Galaxy</button>' +
+            '<button id="btn-view-in-protein" type="button" class="btn btn-primary" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Displays peptide hits aligned within protein sequences and genomic location of translated genes">Peptide-Protein Viewer</button>' +
+            //'<div class="btn-group">' +
+            //'<button type="button" class="btn btn-primary render-btn">Render</button>' +
+            '<button type="button" class="btn btn-primary dropdown-toggle render-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><span data-toggle="tooltip" data-placement="left" title="' + tt + '">Render </span><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
             '<ul id="score-type-ul" class="dropdown-menu"></ul>' +
-            '</div></div></div>' +
+            '</div></div>' +
+            //'</div></div></div>' +
             '<div class="col-md-1"></div><div class="col-md-5"><input class="pep-filter" size="40" type="text" placeholder="Peptide Sequences for Filtering"/>' +
-            '<button type="button" class="pep-filter btn btn-primary">Filter</button><button type="button" class="pep-filter btn btn-primary">Clear</button></div>' +
+            '<button type="button" class="pep-filter btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Filter peptides based on sequence information query">Filter</button><button type="button" class="pep-filter btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Clear query for filtering peptides">Clear</button></div>' +
             '</div>' +
             '<div class="panel-body">' + pv.tableElm + '</div>' +
             '<div class="panel-footer">' +
             '<div class="btn-group" role="group">' +
-            '<button type="button" id="psm-all" class="btn btn-primary">Selected Peptide PSMs</button>' +
+            '<button type="button" id="psm-all" class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Show PSMs for all selected peptide sequences in the Peptide Overview table">PSMs for Selected Peptides</button>' +
             '<div class="btn-group" role="group">' +
-            '<button type="button" id="psm-filtered" class="btn btn-primary">PSMs Filtered by Score</button> ' +
-            '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-            '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
+            '<button type="button" id="psm-filtered" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><span data-toggle="tooltip" data-placement="bottom" title="Show PSMs for peptide sequences filtered by score">PSMs Filtered by Score</span> <span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button> ' +
             '<ul class="dropdown-menu" id="psm-filter-ul">' +
-            '<li value="global"><a href="#">Global Peptides</a></li>' +
-            '<li value="current"><a href="#">Current Peptides</a></li></ul>' +
+            '<li value="global"><a href="#">Filter Global Peptides</a></li>' +
+            '<li value="current"><a href="#">Filter Peptides in Peptide Overview Table</a></li></ul>' +
             '</div></div></div>' +
             '</div>'));
         $('.render-btn').attr('disabled', 'disabled');
@@ -470,6 +469,7 @@ var PeptideView = (function (pv) {
             pv.forPSMRendering = [];
         });
 
+        $('[data-toggle="tooltip"]').tooltip();
     };
 
     return pv;

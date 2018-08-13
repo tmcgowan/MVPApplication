@@ -134,6 +134,7 @@ var VerifiedScans = (function(vs){
 
         $('#scans-to-galaxy').on('click', function(){
             vs.sendToGalaxy();
+            $('#scans-to-galaxy').tooltip('hide');
         }).attr('disabled', 'disabled');
     };
 

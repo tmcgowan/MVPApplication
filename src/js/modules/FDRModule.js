@@ -180,7 +180,7 @@ var FDRPresentation = (function(fdr){
             '<div class="panel-heading">' +
             '<h3 class="panel-title">' +
             '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">' +
-            'Search Application FDR Protocol</a></h3></div>' +
+            'ID Scores</a></h3></div>' +
             '<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">' +
             '<div class="panel-body"><div class="row"><div class="col-md-12"><h5>##SOFTWARE_NAME## (##SOFTWARE_VERSION##) ##FDR_PROTOCOL_NAME## at ##FDR_PROTOCOL_VALUE##</h5></div></div><br>' +
             '<span id="filter_warning"></span><input id="y_filter_value" type="text" style="visibility: hidden; width: 30px"><button id="psm_filter_now" style="visibility: hidden">Filter</button>' +

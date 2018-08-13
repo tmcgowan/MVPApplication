@@ -69,6 +69,7 @@ var ScoreDefaults = (function (sd){
         $('#score_default_div').append(domStr);
         $('div .score_name').on('click', function(){
             $(this).toggleClass('selected');
+
         });
         $('#clear_div_btn').on('click', function(){
             sd.resetDOM();
@@ -82,6 +83,7 @@ var ScoreDefaults = (function (sd){
         b.on('click', function() {
             $('#score_defaults').attr('disabled', 'disabled');
             sd.showDOM();
+            $('#score_defaults').tooltip('hide');
         });
     };
 

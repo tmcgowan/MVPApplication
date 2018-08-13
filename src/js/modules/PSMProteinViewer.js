@@ -151,12 +151,12 @@ var IGVManager = (function (igm) {
         //http://localhost:8080/api/genomes/mmXX/genome_uri
         let uri = this.galaxyConfiguration.href + '/api/genomes/' + 
             this.galaxyConfiguration.dbkey + '/genome_uri';
-        let cobj = confObj;
+        let cobj = confOb;
         fetch(uri)
             .then((resp) => resp.json())
             .then(function(data){
-                confOb.fasta_file = data["fasta_file"];
-                confOb.fasta_index = data["fasta_index"];
+                cobj.fasta_file = data["fasta_file"];
+                cobj.fasta_index = data["fasta_index"];
                 igm.createNewBrowser(cobj);
         }).catch(function(error){
             console.log(error);
