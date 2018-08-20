@@ -15,89 +15,63 @@ var FDRPresentation = (function(fdr){
     fdr.fdrProtocolName = null;
     fdr.fdrProtocolValue = null;
 
-    //Create a d3 scatterplot for the PSM entries
-    fdr.fdrLinePlot = function() {
-        let margin = {left: 25, right: 5, top: 5, bottom: 5};
+    //Use plotly.js for scatter plots
+    fdr.buildPlotlyPlots = function(){
+        Object.keys(FDRPresentation.graphPackage).forEach(function(k, kIdx){
+            //key is score name, eg: PeptideShaker PSM Score
 
-        //Iterate over every score pair and create a D3 line plot.
-        Object.keys(FDRPresentation.graphPackage).forEach(function (k, kIdx) {
-            let width = Math.floor($('#panel_' + kIdx).width()/100)*100;
-            let height = Math.floor((width*.666)/100)*100;
+            var passed = {
+                y: FDRPresentation.graphPackage[k].passed,
+                x: Array.from({length: FDRPresentation.graphPackage[k].passed.length}, (x,i) => i),
+                mode: 'markers',
+                type: 'scattergl',
+                name: 'Passed FDR Threshold',
+                hoverinfo: 'y'
+            };
 
-            let maxScore = d3.max(FDRPresentation.graphPackage[k].passed);
-            let maxIndex = d3.min([FDRPresentation.graphPackage[k].passed.length, FDRPresentation.graphPackage[k].failed.length]);
+            var failed = {
+                y: FDRPresentation.graphPackage[k].failed,
+                x: Array.from({length: FDRPresentation.graphPackage[k].failed.length}, (x,i) => i),
+                mode: 'markers',
+                type: 'scattergl',
+                name: 'Failed FDR Threshold',
+                hoverinfo: 'y'
+            };
+            var data = [passed, failed];
+            var layout = {
+                title: k,
+                xaxis: {
+                    title: 'PSM Index',
+                    showticklabels: false
+                },
+                height: 500
+            };
 
-            let y = d3.scaleLinear()
-                .domain([0, maxScore])
-                .range([height, 0]);
-            let x = d3.scaleLinear()
-                .domain([0, maxIndex])
-                .range([0,width]);
+            var forClick = document.getElementById('panel_' + kIdx);
 
-            let yAxis = d3.axisLeft(y);
-            let svg = d3.select('#panel_' + kIdx)
-                .append('svg')
-                .attr("height", height + 10)
-                .attr("width", width + 10)
-                .attr("name", k);
+            Plotly.newPlot('panel_' + kIdx, data, layout);
 
-            let chartGroup = svg.append("g")
-                .attr("transform","translate("+margin.left+","+margin.top+")");
+            // forClick.on('plotly_click', function(data){
+            //     var filter_yval = 0;
+            //     data.points.forEach(function(dp) {
+            //         if (dp.y > filter_yval) {
+            //             filter_yval = dp.y
+            //         }
+            //     });
+            //     document.getElementById('filter_' + kIdx).innerText = 'Filter data by ' + k + ' score value >= ' + filter_yval;
+            //     var node = document.createElement("button");
+            //     node.innerText = 'Filter';
+            //     node.style = "margin: 5px;";
+            //     node.setAttribute('score_name', k);
+            //     node.setAttribute('score_value', filter_yval);
+            //     node.addEventListener('click', function(){
+            //         console.log('Filtering now.');
+            //         console.log('using score ' + this.getAttribute('score_name'));
+            //         console.log('value of ' + this.getAttribute('score_value'));
+            //     })
+            //     document.getElementById('filter_' + kIdx).appendChild(node);
+            // })
 
-            let line = d3.line()
-                .x(function(d,i){
-                    return x(i);
-                })
-                .y(function (d) {
-                    return y(d);
-                });
-
-            chartGroup.append("path")
-                .attr("class","fdr_path_passed")
-                .attr("d", line(FDRPresentation.graphPackage[k].passed));
-
-            chartGroup.append("text")
-                .attr("transform", "translate(" + (width-(width/2)) + "," + y(FDRPresentation.graphPackage[k].passed[FDRPresentation.graphPackage[k].passed.length-1] - 5) + ")")
-                .attr("dy", ".35em")
-                .attr("text-anchor", "start")
-                .style("fill", "black")
-                .text("Passed Threshold");
-
-            chartGroup.append("path")
-                .attr("class", "fdr_path_failed")
-                .attr("d", line(FDRPresentation.graphPackage[k].failed));
-
-            chartGroup.append("text")
-                .attr("transform", "translate(" + (width-(width/2)) + "," + y(FDRPresentation.graphPackage[k].failed[FDRPresentation.graphPackage[k].failed.length-1] + 5) + ")")
-                .attr("dy", ".35em")
-                .attr("text-anchor", "start")
-                .style("fill", "orange")
-                .text("Failed Threshold");
-
-            chartGroup.append('g').attr('class', 'y axis').call(yAxis);
-
-            svg.on("click",function(){
-                let coords = d3.mouse(this);
-                let yValue = Math.floor(y.invert(coords[1]));
-                //let xValue = Math.floor(x.invert(coords[0]));
-                let scoreName = $(this).attr("name");
-
-                d3.select('line.score_threshold_line').remove();
-
-                $('span#filter_warning').text('Filter PSMs at ' + scoreName + ' >= ');
-                $('input#y_filter_value').val(yValue).attr("style", "visibility: block; width: 30px");
-                $('button#psm_filter_now').attr("style", "visibility: block");
-                svg.append("line")
-                    .style("stroke","blue")
-                    .style("stroke-width", "2px")
-                    .attr("class", "score_threshold_line")
-                    .attr("x1", x(0))
-                    .attr("y1", y(yValue))
-                    .attr("x2", x(maxIndex))
-                    .attr("y2", y(yValue));
-                fdr.scoreName = scoreName;
-                fdr.scoreValue = yValue;
-            });
         });
     };
 
@@ -146,8 +120,8 @@ var FDRPresentation = (function(fdr){
                 FDRPresentation.fdrProtocolValue = data.data[1][1];
                 FDRPresentation.softwareName = data.data[1][2];
                 FDRPresentation.softwareVersion = data.data[1][3];
-                FDRPresentation.preparePanel();
-                FDRPresentation.fdrLinePlot();
+                FDRPresentation.preparePlotlyPanel();
+                FDRPresentation.buildPlotlyPlots();
                 $('#' + FDRPresentation.divID).hide(); //Start hidden.
                 FDRPresentation.publish("FDRDataPrepared");
             });
@@ -174,27 +148,24 @@ var FDRPresentation = (function(fdr){
 
     };
 
-    //Builds GUI panel for user presentation
-    fdr.preparePanel = function() {
+
+    //Builds GUI panel for Plotly plots
+    fdr.preparePlotlyPanel = function() {
         let domStr = '<div class="panel panel-primary">' +
             '<div class="panel-heading">' +
             '<h3 class="panel-title">' +
             '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">' +
             'ID Scores</a></h3></div>' +
             '<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">' +
-            '<div class="panel-body"><div class="row"><div class="col-md-12"><h5>##SOFTWARE_NAME## (##SOFTWARE_VERSION##) ##FDR_PROTOCOL_NAME## at ##FDR_PROTOCOL_VALUE##</h5></div></div><br>' +
-            '<span id="filter_warning"></span><input id="y_filter_value" type="text" style="visibility: hidden; width: 30px"><button id="psm_filter_now" style="visibility: hidden">Filter</button>' +
-            '<button id="psm_clear_filter" style="visibility: hidden">Clear</button>' +
+            '<div class="panel-body"><div class="row"><div class="col-md-12"><h5>##SOFTWARE_NAME## (##SOFTWARE_VERSION##) ##FDR_PROTOCOL_NAME## at ##FDR_PROTOCOL_VALUE##</h5></div></div>' +
             '##SCORE_DOM##' +
-            '</div></div></div>';
+            '</div>';
 
-        //let numGraphPanels = Object.keys(FDRPresentation.graphPackage).length;
-        let sDom = '<div class="row">';
-        //let placed = 0;
+        var sDom = '';
         Object.keys(FDRPresentation.graphPackage).forEach(function(k, kIdx){
-            sDom += '<div class="col-md-6 panel_graph" id="panel_' + kIdx + '"><h5>' + k + '</h5></div>';
+            sDom += '<div class="row"><div class="col-md-12" id="filter_' + kIdx + '"></div></div>';
+            sDom += '<div id="panel_' + kIdx + '"></div>';
         });
-        sDom += '</div>';
 
         domStr = domStr.replace('##SCORE_DOM##', sDom);
         domStr = domStr.replace('##SOFTWARE_NAME##', fdr.softwareName);
@@ -204,15 +175,6 @@ var FDRPresentation = (function(fdr){
 
         $('#' + fdr.divID).append($.parseHTML(domStr));
 
-        //Wire
-        $('button#psm_filter_now').on('click', function(){
-            fdr.callBackFN(fdr.scoreName, fdr.scoreValue);
-            $('button#psm_clear_filter').attr("style", "visibility: block");
-        });
-        $('button#psm_clear_filter').on('click', function(){
-            fdr.publish('UserRemovedFDRFilter');
-            d3.select('line.score_threshold_line').remove();
-        })
     };
 
     fdr.init = function(confObj){

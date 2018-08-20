@@ -40,12 +40,9 @@ var PeptideView = (function (pv) {
             '<div id="pep-functions" class="btn-group" role="group">' +
             '<button id="btn-load-from-galaxy" type="button" class="btn btn-primary" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Enlists datasets from Galaxy history for loading">Load from Galaxy</button>' +
             '<button id="btn-view-in-protein" type="button" class="btn btn-primary" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Displays peptide hits aligned within protein sequences and genomic location of translated genes">Peptide-Protein Viewer</button>' +
-            //'<div class="btn-group">' +
-            //'<button type="button" class="btn btn-primary render-btn">Render</button>' +
             '<button type="button" class="btn btn-primary dropdown-toggle render-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><span data-toggle="tooltip" data-placement="left" title="' + tt + '">Render </span><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
             '<ul id="score-type-ul" class="dropdown-menu"></ul>' +
             '</div></div>' +
-            //'</div></div></div>' +
             '<div class="col-md-1"></div><div class="col-md-5"><input class="pep-filter" size="40" type="text" placeholder="Peptide Sequences for Filtering"/>' +
             '<button type="button" class="pep-filter btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Filter peptides based on sequence information query">Filter</button><button type="button" class="pep-filter btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Clear query for filtering peptides">Clear</button></div>' +
             '</div>' +
@@ -79,6 +76,11 @@ var PeptideView = (function (pv) {
             } else {
                 pv.publish("GlobalScoreFilterRequest");
             }
+
+            $('html, body').animate({
+                scrollTop: ($('#score_filter_div').offset().top)
+            },1000);
+            $('#psm-filtered').tooltip('hide');
         });
 
         $('#psm-all').on('click', function () {
@@ -188,6 +190,11 @@ var PeptideView = (function (pv) {
 
         psmDetailDP = new AjaxDataProvider(option);
         psmDetailDP.generateTable();
+        //Move to table
+        $('html, body').animate({
+            scrollTop: ($('#detail_div').offset().top)
+        },1000);
+        $('#psm-all').tooltip('hide');
     };
 
     pv.wireTable = function () {

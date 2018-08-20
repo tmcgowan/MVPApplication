@@ -9,17 +9,18 @@ var ScoreFilterModule = (function(sfm){
     sfm.guiDiv = 'score_filter_div';
 
 
-    sfm.buildScoreFilerRow = function(sName){
-        let divStr = '<div class="row">' +
-            '<div class="col-md-5 sf-name"><span class="lead">' + sName + '</span></div>' +
+    sfm.buildScoreFilterRow = function(sName){
+        var rId = Math.random().toString(36).replace(/[^a-z]+/g, '');
+        let divStr = '<div id="'+ rId +'" class="row">' +
+            '<div class="col-md-4 sf-name"><span class="lead">' + sName + '</span></div>' +
             '<div class="col-md-3">MIN: ' + sfm.scoreSummary[sName]["min_value"] + ' MAX: ' + sfm.scoreSummary[sName]["max_value"] + '  </div>';
 
         divStr += '<div class="col-md-1"><select class="score_filter_op">' +
             '<option value="gt">&gt;</option><option value="gte">&ge;</option><option value="lt">&lt;</option><option value="lte">&le;</option>' +
             '</select></div>';
 
-        divStr += '<div class="col-md-2"><input class="sf-number" type="number"></div>';
-        //divStr += '<div class="col-md-1 sql-AND"></div>';
+        divStr += '<div class="col-md-2"><input class="sf-number" type="number"></div><div class="col-md-1"><span delete-row="' + rId + '" class="glyphicon glyphicon-remove filter-remove" aria-hidden="true"></span></div>';
+
 
         return divStr;
     };
@@ -51,8 +52,13 @@ var ScoreFilterModule = (function(sfm){
 
         //wire
         $('.score_filter_name').on('click', function(){
-            let divStr =  sfm.buildScoreFilerRow($(this).text()); //'<div class="col-md-8">' + $(this).text() + '</div>';
+            let divStr =  sfm.buildScoreFilterRow($(this).text());
             $('#score-filter-rows').append(divStr);
+
+            $('.filter-remove').on('click', function(){
+                document.getElementById($(this).attr('delete-row')).remove();
+            });
+
         });
 
         $('#score-filter-clear').on('click', function(){

@@ -389,6 +389,7 @@ function AjaxDataProvider(confObj) { // eslint-disable-line no-unused-vars
         } else {
             this.fillDOM();
         }
+
     };
 
     // this.clearContents = function() {
