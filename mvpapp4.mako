@@ -25,7 +25,7 @@
 <nav class="navbar navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">MVP Viewer</a>
+            <a class="navbar-brand" href="#">MVP Viewer<span id="mvp_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span></a>
         </div>
         <div id="user_btns">
                 <div id="app_btns" class="btn-group" role="group">
@@ -75,6 +75,7 @@
 <script src="/static/plugins/visualizations/mvpapp4/static/js/lib/jquery.min.js"></script>
 <script src="/static/plugins/visualizations/mvpapp4/static/js/lib/jquery-ui.min.js"></script>
 <script src="/static/plugins/visualizations/mvpapp4/static/js/lib/igv.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/plotly.min.js"></script>
 
 <script src="/static/plugins/visualizations/mvpapp4/static/js/lib/jquery.flot.js"></script>
 <script src="/static/plugins/visualizations/mvpapp4/static/js/lib/jquery.flot.selection.js"></script>

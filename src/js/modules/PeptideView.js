@@ -1,3 +1,27 @@
+
+
+const PeptideOverviewHelp = {
+        'text': '<p class="lead">Purpose</p><p>The Peptide Overview panel gives quick access to information about: peptide sequences (with modifications), ' +
+        'spectra count used for identification and how many proteins are associated with a specific sequence. You can sort by ' +
+        'sequence or spectra count or protein count.</p>' +
+        '<p>Click on one, or multiple, sequences to view the PSM details for each sequence.</p>' +
+        '<p>The Recipient must attach a copy of this Package. You may use the trade names, trademarks, service marks, or product names of <Name of Development Group, Name of Institution>, nor the names of the Original Code other than this License, you must provide sufficient documentation as part of a whole at no charge to all third parties under the terms of the Program. Contributors may not remove or alter the recipient\'s agreement that any terms on any Source Code of Your choice, which may be incomplete or contain inaccuracies.\n' +
+        '\n' +
+        'You expressly acknowledge and agree that use of the acting entity and all software distributed in accordance with FAR 12.211 (Technical Data) and 12.212 (Computer Software) and, for Department of Defense purchases, DFAR 252.227-7015 (Technical Data -- Commercial Items) and 227.7202-3 (Rights in Commercial Computer Software Documentation). Accordingly, all U.S. Government End Users acquire Covered Code and all other entities that control, are controlled by, or on behalf of all Contributors all liability for other Contributors.\n' +
+        '\n' +
+        'No hardware per se is licensed hereunder. Recipient understands that although Apple and each Contributor must include the Package, in its entirety, is protected by Dutch copyright law) of Licensed Product or portions thereof (including Modifications as hereinafter defined), in both Source Code of a contract shall be taken into account in determining the appropriateness of using and distributing the Program. Contributors may not use this License Agreement. BEOPEN.COM LICENSE AGREEMENT  IMPORTANT: PLEASE READ THE FOLLOWING AGREEMENT CAREFULLY.</p>' +
+        '<hr>' +
+        '<p class="lead">Actions</p><p><dl>' +
+        '<dt>Load from Galaxy</dt><dd>Enlist datasets from Galaxy history for loading.</dd>' +
+        '<dt>Peptide-Protein Viewer</dt><dd>Displays peptide hits aligned within protein sequences and genomic location of translated genes</dd>' +
+        '<dt>Render</dt><dd>Generate a single MSMS scan for each peptide in the overview table. The best MSMS will be determined by the chosen score.</dd>' +
+        '<dt>Filter</dt><dd>Filter peptides based on sequence information query</dd>' +
+        '</dl></p>'
+};
+
+
+
+
 /**
  * Module of code for managing and presenting a peptide-centric view of the mz-sqlite db.
  */
@@ -34,7 +58,7 @@ var PeptideView = (function (pv) {
         e.empty();
         var tt = "Generate a single MSMS scan for each peptide in the overview table. The best MSMS will be determined by the chosen score.";
         e.append($.parseHTML('<div class="panel panel-default"> ' +
-            '<div class="panel-heading"><h3 class="panel-title">Peptide Overview</h3></div>' +
+            '<div class="panel-heading"><h3 class="panel-title" style="display: inline">Peptide Overview</h3><span id="peptide_overview_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span></div>' +
             '<div class="row">' +
             '<div class="col-md-6">' +
             '<div id="pep-functions" class="btn-group" role="group">' +
@@ -100,6 +124,34 @@ var PeptideView = (function (pv) {
                 $('#data-table').DataTable().search('');
                 $('#data-table').DataTable().draw();
             }
+
+        });
+
+        //Help panel for peptide overview
+        $('#peptide_overview_help').on('click', function() {
+            //<div id="master_modal"></div>
+            var m_string = '<div id="pep_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
+                '  <div class="modal-dialog" role="document">\n' +
+                '    <div class="modal-content">\n' +
+                '      <div class="modal-header">\n' +
+                '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+                '        <h4 class="modal-title">Peptide Overview Help</h4>\n' +
+                '      </div>\n' +
+                '      <div class="modal-body">\n' +
+                '        <p>#HELP_TEXT#</p>\n' +
+                '      </div>\n' +
+                '      <div class="modal-footer">\n' +
+                '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
+                '      </div>\n' +
+                '    </div><!-- /.modal-content -->\n' +
+                '  </div><!-- /.modal-dialog -->\n' +
+                '</div><!-- /.modal -->';
+
+            //Text substitutions
+            m_string = m_string.replace('#HELP_TEXT#', PeptideOverviewHelp.text);
+
+            $('#master_modal').empty().append(m_string);
+            $('#pep_help_modal').modal('show');
 
         });
     };

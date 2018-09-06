@@ -88,3 +88,12 @@ path.fdr_path_failed {
 .panel_test {
     background-color: red;
 }
+
+.glyphicon-question-sign {
+    cursor: pointer;
+}
+
+.modal-body {
+    max-height: calc(100vh - 212px);
+    overflow-y: auto;
+}

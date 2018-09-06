@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <title>MVP Application</title>
 
-    <link href="/plugins/visualizations/mvpapp4/static/css/jquery-ui.min.css" rel="stylesheet">
-    <link href="/plugins/visualizations/mvpapp4/static/css/lorikeet.css" rel="stylesheet">
-    <link href="/plugins/visualizations/mvpapp4/static/css/datatables.min.css" rel="stylesheet">
-    <link href="/plugins/visualizations/mvpapp4/static/css/app.css" rel="stylesheet">
-    <link href="/plugins/visualizations/mvpapp4/static/css/msi.css" rel="stylesheet">
+    <link href="/static/plugins/visualizations/mvpapp4/static/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="/static/plugins/visualizations/mvpapp4/static/css/lorikeet.css" rel="stylesheet">
+    <link href="/static/plugins/visualizations/mvpapp4/static/css/datatables.min.css" rel="stylesheet">
+    <link href="/static/plugins/visualizations/mvpapp4/static/css/app.css" rel="stylesheet">
+    <link href="/static/plugins/visualizations/mvpapp4/static/css/msi.css" rel="stylesheet">
 
-    <link href="/plugins/visualizations/mvpapp4/static/css/igv.css" rel="stylesheet">
+    <link href="/static/plugins/visualizations/mvpapp4/static/css/igv.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href='https://fonts.googleapis.com/css?family=PT+Sans:400,700'>
     <link rel="stylesheet" type="text/css" href='https://fonts.googleapis.com/css?family=Open+Sans'>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
@@ -25,14 +25,14 @@
 <nav class="navbar navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">MVP Viewer</a>
+            <a class="navbar-brand" href="#">MVP Viewer<span id="mvp_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span></a>
         </div>
         <div id="user_btns">
                 <div id="app_btns" class="btn-group" role="group">
-                    <button id="fdr_module" class="btn btn-primary navbar-btn" disabled="disabled">FDR Data</button>
-                    <button id="score_defaults" class="btn btn-primary navbar-btn" disabled="disabled">Visible Scores</button>
-                    <button id="scans-to-galaxy" class="btn btn-primary navbar-btn">Verified Scans <span id="scan-count-badge" class="badge">0</span></button>
-                    <button id="clear_scans" class="btn btn-primary navbar-btn" disabled="disabled">Clear all Scans</button>
+                    <button id="fdr_module" class="btn btn-primary navbar-btn" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Distribution of spectral matching identification scores">ID Scores</button>
+                    <button id="score_defaults" class="btn btn-primary navbar-btn" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Select identification features for display">ID Features</button>
+                    <button id="scans-to-galaxy" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="bottom" title="Exports list of verified PSMs to active history">Export Scans <span id="scan-count-badge" class="badge">0</span></button>
+                    <button id="clear_scans" class="btn btn-primary navbar-btn" disabled="disabled" data-container="body" data-toggle="tooltip" data-placement="bottom" title="Clears all scans">Clear all Scans</button>
                 </div>
             </div>
         </div>
@@ -72,22 +72,23 @@
 </div>
 
 
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/jquery.min.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/jquery-ui.min.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/igv.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/jquery.min.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/jquery-ui.min.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/igv.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/plotly.min.js"></script>
 
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/jquery.flot.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/jquery.flot.selection.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/excanvas.min.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/internal.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/specview.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/peptide.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/aminoacid.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/ion.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/jquery.flot.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/jquery.flot.selection.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/excanvas.min.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/internal.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/specview.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/peptide.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/aminoacid.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/ion.js"></script>
 
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/datatables.min.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/lib/d3.min.js"></script>
-<script src="/plugins/visualizations/mvpapp4/static/js/application.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/datatables.min.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/lib/d3.min.js"></script>
+<script src="/static/plugins/visualizations/mvpapp4/static/js/application.js"></script>
 
 <script>
     $(document).ready(function (){

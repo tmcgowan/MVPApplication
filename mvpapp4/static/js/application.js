@@ -389,6 +389,7 @@ function AjaxDataProvider(confObj) { // eslint-disable-line no-unused-vars
         } else {
             this.fillDOM();
         }
+
     };
 
     // this.clearContents = function() {
@@ -420,89 +421,63 @@ var FDRPresentation = (function(fdr){
     fdr.fdrProtocolName = null;
     fdr.fdrProtocolValue = null;
 
-    //Create a d3 scatterplot for the PSM entries
-    fdr.fdrLinePlot = function() {
-        let margin = {left: 25, right: 5, top: 5, bottom: 5};
+    //Use plotly.js for scatter plots
+    fdr.buildPlotlyPlots = function(){
+        Object.keys(FDRPresentation.graphPackage).forEach(function(k, kIdx){
+            //key is score name, eg: PeptideShaker PSM Score
 
-        //Iterate over every score pair and create a D3 line plot.
-        Object.keys(FDRPresentation.graphPackage).forEach(function (k, kIdx) {
-            let width = Math.floor($('#panel_' + kIdx).width()/100)*100;
-            let height = Math.floor((width*.666)/100)*100;
+            var passed = {
+                y: FDRPresentation.graphPackage[k].passed,
+                x: Array.from({length: FDRPresentation.graphPackage[k].passed.length}, (x,i) => i),
+                mode: 'markers',
+                type: 'scattergl',
+                name: 'Passed FDR Threshold',
+                hoverinfo: 'y'
+            };
 
-            let maxScore = d3.max(FDRPresentation.graphPackage[k].passed);
-            let maxIndex = d3.min([FDRPresentation.graphPackage[k].passed.length, FDRPresentation.graphPackage[k].failed.length]);
+            var failed = {
+                y: FDRPresentation.graphPackage[k].failed,
+                x: Array.from({length: FDRPresentation.graphPackage[k].failed.length}, (x,i) => i),
+                mode: 'markers',
+                type: 'scattergl',
+                name: 'Failed FDR Threshold',
+                hoverinfo: 'y'
+            };
+            var data = [passed, failed];
+            var layout = {
+                title: k,
+                xaxis: {
+                    title: 'PSM Index',
+                    showticklabels: false
+                },
+                height: 500
+            };
 
-            let y = d3.scaleLinear()
-                .domain([0, maxScore])
-                .range([height, 0]);
-            let x = d3.scaleLinear()
-                .domain([0, maxIndex])
-                .range([0,width]);
+            var forClick = document.getElementById('panel_' + kIdx);
 
-            let yAxis = d3.axisLeft(y);
-            let svg = d3.select('#panel_' + kIdx)
-                .append('svg')
-                .attr("height", height + 10)
-                .attr("width", width + 10)
-                .attr("name", k);
+            Plotly.newPlot('panel_' + kIdx, data, layout);
 
-            let chartGroup = svg.append("g")
-                .attr("transform","translate("+margin.left+","+margin.top+")");
+            // forClick.on('plotly_click', function(data){
+            //     var filter_yval = 0;
+            //     data.points.forEach(function(dp) {
+            //         if (dp.y > filter_yval) {
+            //             filter_yval = dp.y
+            //         }
+            //     });
+            //     document.getElementById('filter_' + kIdx).innerText = 'Filter data by ' + k + ' score value >= ' + filter_yval;
+            //     var node = document.createElement("button");
+            //     node.innerText = 'Filter';
+            //     node.style = "margin: 5px;";
+            //     node.setAttribute('score_name', k);
+            //     node.setAttribute('score_value', filter_yval);
+            //     node.addEventListener('click', function(){
+            //         console.log('Filtering now.');
+            //         console.log('using score ' + this.getAttribute('score_name'));
+            //         console.log('value of ' + this.getAttribute('score_value'));
+            //     })
+            //     document.getElementById('filter_' + kIdx).appendChild(node);
+            // })
 
-            let line = d3.line()
-                .x(function(d,i){
-                    return x(i);
-                })
-                .y(function (d) {
-                    return y(d);
-                });
-
-            chartGroup.append("path")
-                .attr("class","fdr_path_passed")
-                .attr("d", line(FDRPresentation.graphPackage[k].passed));
-
-            chartGroup.append("text")
-                .attr("transform", "translate(" + (width-(width/2)) + "," + y(FDRPresentation.graphPackage[k].passed[FDRPresentation.graphPackage[k].passed.length-1] - 5) + ")")
-                .attr("dy", ".35em")
-                .attr("text-anchor", "start")
-                .style("fill", "black")
-                .text("Passed Threshold");
-
-            chartGroup.append("path")
-                .attr("class", "fdr_path_failed")
-                .attr("d", line(FDRPresentation.graphPackage[k].failed));
-
-            chartGroup.append("text")
-                .attr("transform", "translate(" + (width-(width/2)) + "," + y(FDRPresentation.graphPackage[k].failed[FDRPresentation.graphPackage[k].failed.length-1] + 5) + ")")
-                .attr("dy", ".35em")
-                .attr("text-anchor", "start")
-                .style("fill", "orange")
-                .text("Failed Threshold");
-
-            chartGroup.append('g').attr('class', 'y axis').call(yAxis);
-
-            svg.on("click",function(){
-                let coords = d3.mouse(this);
-                let yValue = Math.floor(y.invert(coords[1]));
-                //let xValue = Math.floor(x.invert(coords[0]));
-                let scoreName = $(this).attr("name");
-
-                d3.select('line.score_threshold_line').remove();
-
-                $('span#filter_warning').text('Filter PSMs at ' + scoreName + ' >= ');
-                $('input#y_filter_value').val(yValue).attr("style", "visibility: block; width: 30px");
-                $('button#psm_filter_now').attr("style", "visibility: block");
-                svg.append("line")
-                    .style("stroke","blue")
-                    .style("stroke-width", "2px")
-                    .attr("class", "score_threshold_line")
-                    .attr("x1", x(0))
-                    .attr("y1", y(yValue))
-                    .attr("x2", x(maxIndex))
-                    .attr("y2", y(yValue));
-                fdr.scoreName = scoreName;
-                fdr.scoreValue = yValue;
-            });
         });
     };
 
@@ -551,8 +526,8 @@ var FDRPresentation = (function(fdr){
                 FDRPresentation.fdrProtocolValue = data.data[1][1];
                 FDRPresentation.softwareName = data.data[1][2];
                 FDRPresentation.softwareVersion = data.data[1][3];
-                FDRPresentation.preparePanel();
-                FDRPresentation.fdrLinePlot();
+                FDRPresentation.preparePlotlyPanel();
+                FDRPresentation.buildPlotlyPlots();
                 $('#' + FDRPresentation.divID).hide(); //Start hidden.
                 FDRPresentation.publish("FDRDataPrepared");
             });
@@ -579,27 +554,24 @@ var FDRPresentation = (function(fdr){
 
     };
 
-    //Builds GUI panel for user presentation
-    fdr.preparePanel = function() {
+
+    //Builds GUI panel for Plotly plots
+    fdr.preparePlotlyPanel = function() {
         let domStr = '<div class="panel panel-primary">' +
             '<div class="panel-heading">' +
             '<h3 class="panel-title">' +
             '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">' +
-            'Search Application FDR Protocol</a></h3></div>' +
+            'ID Scores</a></h3></div>' +
             '<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">' +
-            '<div class="panel-body"><div class="row"><div class="col-md-12"><h5>##SOFTWARE_NAME## (##SOFTWARE_VERSION##) ##FDR_PROTOCOL_NAME## at ##FDR_PROTOCOL_VALUE##</h5></div></div><br>' +
-            '<span id="filter_warning"></span><input id="y_filter_value" type="text" style="visibility: hidden; width: 30px"><button id="psm_filter_now" style="visibility: hidden">Filter</button>' +
-            '<button id="psm_clear_filter" style="visibility: hidden">Clear</button>' +
+            '<div class="panel-body"><div class="row"><div class="col-md-12"><h5>##SOFTWARE_NAME## (##SOFTWARE_VERSION##) ##FDR_PROTOCOL_NAME## at ##FDR_PROTOCOL_VALUE##</h5></div></div>' +
             '##SCORE_DOM##' +
-            '</div></div></div>';
+            '</div>';
 
-        //let numGraphPanels = Object.keys(FDRPresentation.graphPackage).length;
-        let sDom = '<div class="row">';
-        //let placed = 0;
+        var sDom = '';
         Object.keys(FDRPresentation.graphPackage).forEach(function(k, kIdx){
-            sDom += '<div class="col-md-6 panel_graph" id="panel_' + kIdx + '"><h5>' + k + '</h5></div>';
+            sDom += '<div class="row"><div class="col-md-12" id="filter_' + kIdx + '"></div></div>';
+            sDom += '<div id="panel_' + kIdx + '"></div>';
         });
-        sDom += '</div>';
 
         domStr = domStr.replace('##SCORE_DOM##', sDom);
         domStr = domStr.replace('##SOFTWARE_NAME##', fdr.softwareName);
@@ -609,15 +581,6 @@ var FDRPresentation = (function(fdr){
 
         $('#' + fdr.divID).append($.parseHTML(domStr));
 
-        //Wire
-        $('button#psm_filter_now').on('click', function(){
-            fdr.callBackFN(fdr.scoreName, fdr.scoreValue);
-            $('button#psm_clear_filter').attr("style", "visibility: block");
-        });
-        $('button#psm_clear_filter').on('click', function(){
-            fdr.publish('UserRemovedFDRFilter');
-            d3.select('line.score_threshold_line').remove();
-        })
     };
 
     fdr.init = function(confObj){
@@ -690,27 +653,21 @@ var IGVTrackManager = (function(itm){
 
 /**
  * Module code for creating and managing the IGV.js browser.
+ * 
+ * Galaxy history entry for the MZ.Sqlite _must_ have a valid DBKey assigned.
  * @param confObj
  * @constructor
  */
 function IGVModule(confObj) {
-
-    this.validBroadIDs = ["hg38", "hg19", "hg18", "mm10"];
 
     this.addTrackCB = confObj.addTrackCB;
     this.igvDiv = confObj.igvDiv;
     this.data = confObj.data;
     this.genome = confObj.dbkey || "hg19"; //A default value
     this.hidden = false;
-
-    if (this.checkGenomeValues(this.validBroadIDs, confObj.dbkey)) {
-        this.genome = confObj.dbkey;
-    }
+    this.fasta_file = confObj.fasta_file;
+    this.fasta_index = confObj.fasta_index;
 }
-
-IGVModule.prototype.checkGenomeValues = function (arr, val) {
-    return arr.some(arrVal => val === arrVal);
-};
 
 //Build all the custom UI surrounding the IGV browser.
 IGVModule.prototype.fillChrome = function () {
@@ -750,7 +707,10 @@ IGVModule.prototype.goToLocation = function (loc) {
 
 IGVModule.prototype.showBrowser = function () {
     let options = {
-        reference: {"id": this.genome},
+        reference: {
+            fastaURL: this.fasta_file,
+            indexURL: this.fasta_index,
+        },
         locus: this.data.chrom + ":" + this.data.start + "-" + this.data.end
     };
     this.fillChrome();
@@ -758,8 +718,6 @@ IGVModule.prototype.showBrowser = function () {
 };
 
 var IGVManager = (function (igm) {
-    let dbkey = "mm10";
-    let validBroadIDs = ["hg38", "hg19", "hg18", "mm10"];
     let validTrackFiles = null;
 
     igm.goToLocation = function(strL) {
@@ -838,54 +796,23 @@ var IGVManager = (function (igm) {
         igm.browser.showBrowser();
     };
 
-    igm.showModal = function (confObj) {
-        let s = '<div class="modal fade" id="genome_key" tabindex="-1" data-backdrop="false" role="dialog">' +
-            '<div class="modal-dialog" role="document">\n' +
-            '    <div class="modal-content">\n' +
-            '      <div class="modal-header">\n' +
-            '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-            '        <h4 class="modal-title">Set Genome ID</h4>\n' +
-            '      </div>\n' +
-            '      <div class="modal-body">\n' +
-            '        <p>This dataset does not have an associated genome DB key. Please choose a genome ID.</p>\n' +
-            '      <ul class="list-group">##ID_LIST##</ul>' +
-            '      </div>\n' +
-            '      <div class="modal-footer">\n' +
-            '        <button id="set-genome-id" type="button" class="btn btn-primary">Save changes</button>\n' +
-            '      </div>\n' +
-            '    </div><!-- /.modal-content -->\n' +
-            '  </div><!-- /.modal-dialog --></div>';
-        let idList = '';
-        validBroadIDs.forEach(function (cv) {
-            //<li class="list-group-item">Cras justo odio</li>
-            idList += '<li class="list-group-item genome-id-item">' + cv + '</li>';
-        });
-        s = s.replace('##ID_LIST##', idList);
-        $('#master_modal').empty().append(s);
-
-        $('.genome-id-item').on('click', function () {
-            $('.genome-id-item').removeClass('selected');
-            $(this).addClass('selected');
-        });
-
-        $('#set-genome-id').on('click', function () {
-            let rVal = $('.genome-id-item.selected').text();
-            if (rVal.length > 0) {
-                dbkey = rVal;
-                console.log('Assigning ' + rVal);
-            } else {
-                console.log('User does not choose an ID. Assigning MM10');
-            }
-            $('#genome_key').modal('hide');
-            confObj.dbkey = rVal;
-            igm.createNewBrowser(confObj);
-        });
-
-        $('#genome_key').modal({'backdrop': false});
-    };
 
     igm.buildModule = function (confOb) {
-        igm.createNewBrowser(confOb);
+        //Get URI for index file and fasta file, URI call will be based on dbkey.
+        //http://localhost:8080/api/genomes/mmXX/genome_uri
+        let uri = this.galaxyConfiguration.href + '/api/genomes/' + 
+            this.galaxyConfiguration.dbkey + '/genome_uri';
+        let cobj = confOb;
+        fetch(uri)
+            .then((resp) => resp.json())
+            .then(function(data){
+                cobj.fasta_file = data["fasta_file"];
+                cobj.fasta_index = data["fasta_index"];
+                igm.createNewBrowser(cobj);
+        }).catch(function(error){
+            console.log(error);
+        }) 
+        
     };
 
     igm.init = function(confObj) {
@@ -1211,10 +1138,12 @@ let PSMProteinViewer = (function () {
                             options.igvDiv = self.igvDiv;
                             options.data = d;
                             options.dbkey = self.dbkey;
-                            //Does self have a dbkey assigned? If not, query user.
+                            //Does self have a dbkey assigned? If not, inform the
+                            //user they must associated the history entry with a
+                            //reference genome.
                             if (self.dbkey === "?") {
-                                //show modal and get genome
-                                IGVManager.showModal(options);
+                                //TODO: modal, message banner or something else besides alert??
+                                alert('The mz.sqlite database must be associated with a reference genome');
                             } else {
                                 IGVManager.buildModule(options);
                             }
@@ -1588,7 +1517,31 @@ let PSMProteinViewer = (function () {
 
     return PSMProteinViewer;
 })();
-/* eslint-disable-line no-use-before-define, no-unused-vars *//**
+/* eslint-disable-line no-use-before-define, no-unused-vars */
+
+const PeptideOverviewHelp = {
+        'text': '<p class="lead">Purpose</p><p>The Peptide Overview panel gives quick access to information about: peptide sequences (with modifications), ' +
+        'spectra count used for identification and how many proteins are associated with a specific sequence. You can sort by ' +
+        'sequence or spectra count or protein count.</p>' +
+        '<p>Click on one, or multiple, sequences to view the PSM details for each sequence.</p>' +
+        '<p>The Recipient must attach a copy of this Package. You may use the trade names, trademarks, service marks, or product names of <Name of Development Group, Name of Institution>, nor the names of the Original Code other than this License, you must provide sufficient documentation as part of a whole at no charge to all third parties under the terms of the Program. Contributors may not remove or alter the recipient\'s agreement that any terms on any Source Code of Your choice, which may be incomplete or contain inaccuracies.\n' +
+        '\n' +
+        'You expressly acknowledge and agree that use of the acting entity and all software distributed in accordance with FAR 12.211 (Technical Data) and 12.212 (Computer Software) and, for Department of Defense purchases, DFAR 252.227-7015 (Technical Data -- Commercial Items) and 227.7202-3 (Rights in Commercial Computer Software Documentation). Accordingly, all U.S. Government End Users acquire Covered Code and all other entities that control, are controlled by, or on behalf of all Contributors all liability for other Contributors.\n' +
+        '\n' +
+        'No hardware per se is licensed hereunder. Recipient understands that although Apple and each Contributor must include the Package, in its entirety, is protected by Dutch copyright law) of Licensed Product or portions thereof (including Modifications as hereinafter defined), in both Source Code of a contract shall be taken into account in determining the appropriateness of using and distributing the Program. Contributors may not use this License Agreement. BEOPEN.COM LICENSE AGREEMENT  IMPORTANT: PLEASE READ THE FOLLOWING AGREEMENT CAREFULLY.</p>' +
+        '<hr>' +
+        '<p class="lead">Actions</p><p><dl>' +
+        '<dt>Load from Galaxy</dt><dd>Enlist datasets from Galaxy history for loading.</dd>' +
+        '<dt>Peptide-Protein Viewer</dt><dd>Displays peptide hits aligned within protein sequences and genomic location of translated genes</dd>' +
+        '<dt>Render</dt><dd>Generate a single MSMS scan for each peptide in the overview table. The best MSMS will be determined by the chosen score.</dd>' +
+        '<dt>Filter</dt><dd>Filter peptides based on sequence information query</dd>' +
+        '</dl></p>'
+};
+
+
+
+
+/**
  * Module of code for managing and presenting a peptide-centric view of the mz-sqlite db.
  */
 var PeptideView = (function (pv) {
@@ -1622,33 +1575,29 @@ var PeptideView = (function (pv) {
     pv.domEdit = function () {
         var e = $('#' + pv.baseDiv);
         e.empty();
-
+        var tt = "Generate a single MSMS scan for each peptide in the overview table. The best MSMS will be determined by the chosen score.";
         e.append($.parseHTML('<div class="panel panel-default"> ' +
-            '<div class="panel-heading"><h3 class="panel-title">Peptide Overview</h3></div>' +
+            '<div class="panel-heading"><h3 class="panel-title" style="display: inline">Peptide Overview</h3><span id="peptide_overview_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span></div>' +
             '<div class="row">' +
             '<div class="col-md-6">' +
             '<div id="pep-functions" class="btn-group" role="group">' +
-            '<button id="btn-load-from-galaxy" type="button" class="btn btn-primary" disabled="disabled">Load from Galaxy</button>' +
-            '<button id="btn-view-in-protein" type="button" class="btn btn-primary" disabled="disabled">View in Protein</button>' +
-            '<div class="btn-group">' +
-            '<button type="button" class="btn btn-primary render-btn">Render</button>' +
-            '<button type="button" class="btn btn-primary dropdown-toggle render-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
+            '<button id="btn-load-from-galaxy" type="button" class="btn btn-primary" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Enlists datasets from Galaxy history for loading">Load from Galaxy</button>' +
+            '<button id="btn-view-in-protein" type="button" class="btn btn-primary" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Displays peptide hits aligned within protein sequences and genomic location of translated genes">Peptide-Protein Viewer</button>' +
+            '<button type="button" class="btn btn-primary dropdown-toggle render-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><span data-toggle="tooltip" data-placement="left" title="' + tt + '">Render </span><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
             '<ul id="score-type-ul" class="dropdown-menu"></ul>' +
-            '</div></div></div>' +
+            '</div></div>' +
             '<div class="col-md-1"></div><div class="col-md-5"><input class="pep-filter" size="40" type="text" placeholder="Peptide Sequences for Filtering"/>' +
-            '<button type="button" class="pep-filter btn btn-primary">Filter</button><button type="button" class="pep-filter btn btn-primary">Clear</button></div>' +
+            '<button type="button" class="pep-filter btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Filter peptides based on sequence information query">Filter</button><button type="button" class="pep-filter btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Clear query for filtering peptides">Clear</button></div>' +
             '</div>' +
             '<div class="panel-body">' + pv.tableElm + '</div>' +
             '<div class="panel-footer">' +
             '<div class="btn-group" role="group">' +
-            '<button type="button" id="psm-all" class="btn btn-primary">Selected Peptide PSMs</button>' +
+            '<button type="button" id="psm-all" class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Show PSMs for all selected peptide sequences in the Peptide Overview table">PSMs for Selected Peptides</button>' +
             '<div class="btn-group" role="group">' +
-            '<button type="button" id="psm-filtered" class="btn btn-primary">PSMs Filtered by Score</button> ' +
-            '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-            '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
+            '<button type="button" id="psm-filtered" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><span data-toggle="tooltip" data-placement="bottom" title="Show PSMs for peptide sequences filtered by score">PSMs Filtered by Score</span> <span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button> ' +
             '<ul class="dropdown-menu" id="psm-filter-ul">' +
-            '<li value="global"><a href="#">Global Peptides</a></li>' +
-            '<li value="current"><a href="#">Current Peptides</a></li></ul>' +
+            '<li value="global"><a href="#">Filter Global Peptides</a></li>' +
+            '<li value="current"><a href="#">Filter Peptides in Peptide Overview Table</a></li></ul>' +
             '</div></div></div>' +
             '</div>'));
         $('.render-btn').attr('disabled', 'disabled');
@@ -1670,6 +1619,11 @@ var PeptideView = (function (pv) {
             } else {
                 pv.publish("GlobalScoreFilterRequest");
             }
+
+            $('html, body').animate({
+                scrollTop: ($('#score_filter_div').offset().top)
+            },1000);
+            $('#psm-filtered').tooltip('hide');
         });
 
         $('#psm-all').on('click', function () {
@@ -1689,6 +1643,34 @@ var PeptideView = (function (pv) {
                 $('#data-table').DataTable().search('');
                 $('#data-table').DataTable().draw();
             }
+
+        });
+
+        //Help panel for peptide overview
+        $('#peptide_overview_help').on('click', function() {
+            //<div id="master_modal"></div>
+            var m_string = '<div id="pep_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
+                '  <div class="modal-dialog" role="document">\n' +
+                '    <div class="modal-content">\n' +
+                '      <div class="modal-header">\n' +
+                '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+                '        <h4 class="modal-title">Peptide Overview Help</h4>\n' +
+                '      </div>\n' +
+                '      <div class="modal-body">\n' +
+                '        <p>#HELP_TEXT#</p>\n' +
+                '      </div>\n' +
+                '      <div class="modal-footer">\n' +
+                '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
+                '      </div>\n' +
+                '    </div><!-- /.modal-content -->\n' +
+                '  </div><!-- /.modal-dialog -->\n' +
+                '</div><!-- /.modal -->';
+
+            //Text substitutions
+            m_string = m_string.replace('#HELP_TEXT#', PeptideOverviewHelp.text);
+
+            $('#master_modal').empty().append(m_string);
+            $('#pep_help_modal').modal('show');
 
         });
     };
@@ -1779,6 +1761,11 @@ var PeptideView = (function (pv) {
 
         psmDetailDP = new AjaxDataProvider(option);
         psmDetailDP.generateTable();
+        //Move to table
+        $('html, body').animate({
+            scrollTop: ($('#detail_div').offset().top)
+        },1000);
+        $('#psm-all').tooltip('hide');
     };
 
     pv.wireTable = function () {
@@ -2060,6 +2047,7 @@ var PeptideView = (function (pv) {
             pv.forPSMRendering = [];
         });
 
+        $('[data-toggle="tooltip"]').tooltip();
     };
 
     return pv;
@@ -2403,6 +2391,7 @@ var RenderPSM = (function(rpm){
         $('#clear_scans').removeAttr("disabled").on('click', function(){
             $('#lorikeet_zone').children().each(function(){$(this).remove()});
             $(this).attr('disabled', 'disabled');
+            $('#clear_scans').tooltip('hide');
         });
     };
 
@@ -2417,6 +2406,13 @@ var RenderPSM = (function(rpm){
                 spectrumTitle: arg.spectrumTitle
             });
             rpm.manageClearing();
+
+
+            $('html, body').animate({
+                scrollTop: ($('#lorikeet_zone').offset().top)
+            },1000);
+
+
         });
 
         rpm.subscribe('renderBestPSM', function(arg){
@@ -2426,6 +2422,9 @@ var RenderPSM = (function(rpm){
                 scoreField: arg.scoreField,
                 sortDir: arg.sortDir
             });
+            $('html, body').animate({
+                scrollTop: ($('#lorikeet_zone').offset().top)
+            },1000);
             rpm.manageClearing();
         });
     };
@@ -2443,17 +2442,18 @@ var ScoreFilterModule = (function(sfm){
     sfm.guiDiv = 'score_filter_div';
 
 
-    sfm.buildScoreFilerRow = function(sName){
-        let divStr = '<div class="row">' +
-            '<div class="col-md-5 sf-name"><span class="lead">' + sName + '</span></div>' +
+    sfm.buildScoreFilterRow = function(sName){
+        var rId = Math.random().toString(36).replace(/[^a-z]+/g, '');
+        let divStr = '<div id="'+ rId +'" class="row">' +
+            '<div class="col-md-4 sf-name"><span class="lead">' + sName + '</span></div>' +
             '<div class="col-md-3">MIN: ' + sfm.scoreSummary[sName]["min_value"] + ' MAX: ' + sfm.scoreSummary[sName]["max_value"] + '  </div>';
 
         divStr += '<div class="col-md-1"><select class="score_filter_op">' +
             '<option value="gt">&gt;</option><option value="gte">&ge;</option><option value="lt">&lt;</option><option value="lte">&le;</option>' +
             '</select></div>';
 
-        divStr += '<div class="col-md-2"><input class="sf-number" type="number"></div>';
-        //divStr += '<div class="col-md-1 sql-AND"></div>';
+        divStr += '<div class="col-md-2"><input class="sf-number" type="number"></div><div class="col-md-1"><span delete-row="' + rId + '" class="glyphicon glyphicon-remove filter-remove" aria-hidden="true"></span></div>';
+
 
         return divStr;
     };
@@ -2485,8 +2485,13 @@ var ScoreFilterModule = (function(sfm){
 
         //wire
         $('.score_filter_name').on('click', function(){
-            let divStr =  sfm.buildScoreFilerRow($(this).text()); //'<div class="col-md-8">' + $(this).text() + '</div>';
+            let divStr =  sfm.buildScoreFilterRow($(this).text());
             $('#score-filter-rows').append(divStr);
+
+            $('.filter-remove').on('click', function(){
+                document.getElementById($(this).attr('delete-row')).remove();
+            });
+
         });
 
         $('#score-filter-clear').on('click', function(){
@@ -2768,6 +2773,7 @@ var VerifiedScans = (function(vs){
 
         $('#scans-to-galaxy').on('click', function(){
             vs.sendToGalaxy();
+            $('#scans-to-galaxy').tooltip('hide');
         }).attr('disabled', 'disabled');
     };
 
@@ -3431,6 +3437,7 @@ var ScoreDefaults = (function (sd){
         $('#score_default_div').append(domStr);
         $('div .score_name').on('click', function(){
             $(this).toggleClass('selected');
+
         });
         $('#clear_div_btn').on('click', function(){
             sd.resetDOM();
@@ -3444,6 +3451,7 @@ var ScoreDefaults = (function (sd){
         b.on('click', function() {
             $('#score_defaults').attr('disabled', 'disabled');
             sd.showDOM();
+            $('#score_defaults').tooltip('hide');
         });
     };
 
@@ -3479,6 +3487,25 @@ var ScoreDefaults = (function (sd){
 
     return sd;
 }(ScoreDefaults || {}));//eslint-disable-line no-use-before-define
+
+
+const MVPHelp = {
+    'text': '<p class="lead">Purpose</p><p>The MVP visualization tool extends Galaxy-P\'s advantages into the ' +
+    'visualization of large, complex data sets. This allows researchers to quickly inspect and verify the quality ' +
+    'of the results as well offer an overview with visualization and a deeper understanding of underlying spectral data. ' +
+    ' This can be especially valuable when results include inputs from possibly diverse domains.</p>' + '' +
+    '<p>With the incorporation of Integrated Genomics Viewer (IGV) and Lorikeet, the MVP platform is already merging ' +
+    'proteomic and genomic results into a single, accessible output. A user can, with relatively few keystrokes, ' +
+    'filter and order large datasets down to a manageable subset. Due to the tools use of server-side caching, ' +
+    'large data sets are handled as quickly as small datasets.</p>' +
+    '<p>Waidmanns Heil! Das feist Groschengrab flanieren. Die Fracksausen berappen der ausgemergelt Hupfdohle. Das Gesinde bauchpinseln der gebeutelt Lump. Das frivol Gamaschen bemuttern. Der Erbfeind picheln die fatal Lunte. Das Personenvereinzelungsanlage picheln der pfundig Prahlhans. Der hochgestochen Tausendsassa dengeln. Naschkatze und Jungfer piesacken emsig Kummerspeck. Schabracke und Lausbub friemeln frivol Abort. Das fidel Geschmeide ergötzen. Die Kokolores lobpreisen der adrett Grüne Minna. Der kess Fracksausen bauchpinseln. Die halbstark Geschmeide betören. Die hanebüchen Jubelperser. Ei der Daus!' +
+    'Der bierernst Waschweib. Grüne Minna und Pantoffelheld grämen feist Ganove. Das Schabracke stagnieren die adrett Schäferstündchen. Die Haudegen verhaspeln die butterweich Haderlump. Augenweide und Schuhwichse dengeln hurtig Kinkerlitzchen. Der Unhold ergötzen das geflissentlich Lümmel. Flausen und Drückeberger friemeln gemach Naschkatze. Die Augenweide bemuttern der dufte Kuppelei. Das Gemächt friemeln der einfältig Kaffeekränzchen. Der hurtig Himmelfahrtskommando. Die Schelm lobpreisen der blindwütig Ganove. Der einfältig Prahlhans.</p>' +
+    '<hr><p class="lead">Actions</p><p><dl>' +
+    '<dt>ID Scores</dt><dd>Distribution of spectral matching identification scores</dd>' +
+    '<dt>ID Features</dt><dd>Select identification features for display</dd>' +
+    '<dt>Export Scans</dt><dd>Exports list of verified PSMs to active history</dd>'
+
+};
 
 
 /**
@@ -3579,6 +3606,10 @@ var MVPApplication = (function (app) {
             $('#fdr_module').removeAttr('disabled')
                 .on('click', function(){
                     $('#fdr_div').toggle();
+                    $('html, body').animate({
+                        scrollTop: ($('#fdr_div').offset().top)
+                    },500);
+                    $('#fdr_module  ').tooltip('hide')
                 });
 
         });
@@ -3644,6 +3675,32 @@ var MVPApplication = (function (app) {
                 callBackFN: PeptideView.reBuildTable
             });
         }
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('#mvp_help').on('click', function(){
+            var m_string = '<div id="mvp_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
+                '  <div class="modal-dialog" role="document">\n' +
+                '    <div class="modal-content">\n' +
+                '      <div class="modal-header">\n' +
+                '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+                '        <h4 class="modal-title">MVP Help</h4>\n' +
+                '      </div>\n' +
+                '      <div class="modal-body">\n' +
+                '        <p>#HELP_TEXT#</p>\n' +
+                '      </div>\n' +
+                '      <div class="modal-footer">\n' +
+                '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
+                '      </div>\n' +
+                '    </div><!-- /.modal-content -->\n' +
+                '  </div><!-- /.modal-dialog -->\n' +
+                '</div><!-- /.modal -->';
+
+            //Text substitutions
+            m_string = m_string.replace('#HELP_TEXT#', MVPHelp.text);
+
+            $('#master_modal').empty().append(m_string);
+            $('#mvp_help_modal').modal('show');
+        });
     };
 
     return {

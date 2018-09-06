@@ -1,4 +1,23 @@
 
+const MVPHelp = {
+    'text': '<p class="lead">Purpose</p><p>The MVP visualization tool extends Galaxy-P\'s advantages into the ' +
+    'visualization of large, complex data sets. This allows researchers to quickly inspect and verify the quality ' +
+    'of the results as well offer an overview with visualization and a deeper understanding of underlying spectral data. ' +
+    ' This can be especially valuable when results include inputs from possibly diverse domains.</p>' + '' +
+    '<p>With the incorporation of Integrated Genomics Viewer (IGV) and Lorikeet, the MVP platform is already merging ' +
+    'proteomic and genomic results into a single, accessible output. A user can, with relatively few keystrokes, ' +
+    'filter and order large datasets down to a manageable subset. Due to the tools use of server-side caching, ' +
+    'large data sets are handled as quickly as small datasets.</p>' +
+    '<p>Waidmanns Heil! Das feist Groschengrab flanieren. Die Fracksausen berappen der ausgemergelt Hupfdohle. Das Gesinde bauchpinseln der gebeutelt Lump. Das frivol Gamaschen bemuttern. Der Erbfeind picheln die fatal Lunte. Das Personenvereinzelungsanlage picheln der pfundig Prahlhans. Der hochgestochen Tausendsassa dengeln. Naschkatze und Jungfer piesacken emsig Kummerspeck. Schabracke und Lausbub friemeln frivol Abort. Das fidel Geschmeide ergötzen. Die Kokolores lobpreisen der adrett Grüne Minna. Der kess Fracksausen bauchpinseln. Die halbstark Geschmeide betören. Die hanebüchen Jubelperser. Ei der Daus!' +
+    'Der bierernst Waschweib. Grüne Minna und Pantoffelheld grämen feist Ganove. Das Schabracke stagnieren die adrett Schäferstündchen. Die Haudegen verhaspeln die butterweich Haderlump. Augenweide und Schuhwichse dengeln hurtig Kinkerlitzchen. Der Unhold ergötzen das geflissentlich Lümmel. Flausen und Drückeberger friemeln gemach Naschkatze. Die Augenweide bemuttern der dufte Kuppelei. Das Gemächt friemeln der einfältig Kaffeekränzchen. Der hurtig Himmelfahrtskommando. Die Schelm lobpreisen der blindwütig Ganove. Der einfältig Prahlhans.</p>' +
+    '<hr><p class="lead">Actions</p><p><dl>' +
+    '<dt>ID Scores</dt><dd>Distribution of spectral matching identification scores</dd>' +
+    '<dt>ID Features</dt><dd>Select identification features for display</dd>' +
+    '<dt>Export Scans</dt><dd>Exports list of verified PSMs to active history</dd>'
+
+};
+
+
 /**
  * Mediator pattern as main application.
  */
@@ -167,6 +186,31 @@ var MVPApplication = (function (app) {
             });
         }
         $('[data-toggle="tooltip"]').tooltip();
+
+        $('#mvp_help').on('click', function(){
+            var m_string = '<div id="mvp_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
+                '  <div class="modal-dialog" role="document">\n' +
+                '    <div class="modal-content">\n' +
+                '      <div class="modal-header">\n' +
+                '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+                '        <h4 class="modal-title">MVP Help</h4>\n' +
+                '      </div>\n' +
+                '      <div class="modal-body">\n' +
+                '        <p>#HELP_TEXT#</p>\n' +
+                '      </div>\n' +
+                '      <div class="modal-footer">\n' +
+                '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
+                '      </div>\n' +
+                '    </div><!-- /.modal-content -->\n' +
+                '  </div><!-- /.modal-dialog -->\n' +
+                '</div><!-- /.modal -->';
+
+            //Text substitutions
+            m_string = m_string.replace('#HELP_TEXT#', MVPHelp.text);
+
+            $('#master_modal').empty().append(m_string);
+            $('#mvp_help_modal').modal('show');
+        });
     };
 
     return {
