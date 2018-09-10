@@ -5,20 +5,24 @@ const PeptideOverviewHelp = {
         'spectra count used for identification and how many proteins are associated with a specific sequence. You can sort by ' +
         'sequence or spectra count or protein count.</p>' +
         '<p>Click on one, or multiple, sequences to view the PSM details for each sequence.</p>' +
-        '<p>The Recipient must attach a copy of this Package. You may use the trade names, trademarks, service marks, or product names of <Name of Development Group, Name of Institution>, nor the names of the Original Code other than this License, you must provide sufficient documentation as part of a whole at no charge to all third parties under the terms of the Program. Contributors may not remove or alter the recipient\'s agreement that any terms on any Source Code of Your choice, which may be incomplete or contain inaccuracies.\n' +
-        '\n' +
-        'You expressly acknowledge and agree that use of the acting entity and all software distributed in accordance with FAR 12.211 (Technical Data) and 12.212 (Computer Software) and, for Department of Defense purchases, DFAR 252.227-7015 (Technical Data -- Commercial Items) and 227.7202-3 (Rights in Commercial Computer Software Documentation). Accordingly, all U.S. Government End Users acquire Covered Code and all other entities that control, are controlled by, or on behalf of all Contributors all liability for other Contributors.\n' +
-        '\n' +
-        'No hardware per se is licensed hereunder. Recipient understands that although Apple and each Contributor must include the Package, in its entirety, is protected by Dutch copyright law) of Licensed Product or portions thereof (including Modifications as hereinafter defined), in both Source Code of a contract shall be taken into account in determining the appropriateness of using and distributing the Program. Contributors may not use this License Agreement. BEOPEN.COM LICENSE AGREEMENT  IMPORTANT: PLEASE READ THE FOLLOWING AGREEMENT CAREFULLY.</p>' +
+        '<p>You can filter peptide sequences in one of two ways:</p>' +
+        '<ul><li>Enter a sequence of interest in the text box</li><li>Load a list of sequences from the current Galaxy history</li></ul>' +
         '<hr>' +
         '<p class="lead">Actions</p><p><dl>' +
-        '<dt>Load from Galaxy</dt><dd>Enlist datasets from Galaxy history for loading.</dd>' +
+        '<dt>PSMs for Selected Peptides</dt>Show PSMs for all selected peptide sequences in the Peptide Overview table. There will be <strong>no</strong> filtering of PSMs.<dd></dd>' +
+        '<dt>PSMs filtered by Score</dt><dd>You can filter PSMs by their associated scores. You can filter just the PSMs linked with the chosen peptide sequences or filter for PSMs from the entire database. To choose scores, a filtering panel will become visible.</dd>' +
+        '<dt>Load from Galaxy</dt><dd>You can filter peptide seq</dd>' +
         '<dt>Peptide-Protein Viewer</dt><dd>Displays peptide hits aligned within protein sequences and genomic location of translated genes</dd>' +
         '<dt>Render</dt><dd>Generate a single MSMS scan for each peptide in the overview table. The best MSMS will be determined by the chosen score.</dd>' +
         '<dt>Filter</dt><dd>Filter peptides based on sequence information query</dd>' +
         '</dl></p>'
 };
 
+const PSMDetailHelp = {
+    'text': '<p class="lead">Purpose</p><p>This panel contains all the details for a set of requested PSMs. Each column is sortable</p>' +
+    '<p>Click on any row, and an MSMS scan will be produced using the <a href="https://github.com/UWPR/Lorikeet" target="_blank">Lorikeet tool</a></p>' +
+    '<hr><p class="lead">Actions</p><dl><dt>Row Click</dt><dd>Click on any PSM row to immediately create an MSMS scan. You can generate multiple scans by clicking on new rows.</dd></dl>'
+};
 
 
 
@@ -144,12 +148,16 @@ var PeptideView = (function (pv) {
         el.append($.parseHTML('<div class="panel panel-default"> ' +
             '<div class="panel-heading" style="background-color: lightblue;">' +
             '<div class="row">' +
-            '<div class="col-md-10"><h3 class="panel-title">PSM Detail for ' + sequence + '</h3></div>' +
+            '<div class="col-md-10"><h3 class="panel-title" style="display: inline;">PSM Detail for ' + sequence + '</h3><span id="psm_detail_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span></div>' +
             '<div class="col-md-2"><span><button class="glyphicon glyphicon-remove kill-detail-table"></button></span></div></div>' +
             '</div>' +
             '<div class="panel-body"><table id="data-detail-table" class="table table-bordered" cellspacing="0" width="100%"></table></div></div>'));
 
         $('.kill-detail-table').on('click', pv.destroyDetailTable);
+
+        $('#psm_detail_help').on('click', function(){
+            BuildHelpPanel.showHelp(PSMDetailHelp.text);
+        });
 
     };
 

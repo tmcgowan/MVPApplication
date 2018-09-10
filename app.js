@@ -8,8 +8,10 @@ const MVPHelp = {
     'proteomic and genomic results into a single, accessible output. A user can, with relatively few keystrokes, ' +
     'filter and order large datasets down to a manageable subset. Due to the tools use of server-side caching, ' +
     'large data sets are handled as quickly as small datasets.</p>' +
-    '<p>Waidmanns Heil! Das feist Groschengrab flanieren. Die Fracksausen berappen der ausgemergelt Hupfdohle. Das Gesinde bauchpinseln der gebeutelt Lump. Das frivol Gamaschen bemuttern. Der Erbfeind picheln die fatal Lunte. Das Personenvereinzelungsanlage picheln der pfundig Prahlhans. Der hochgestochen Tausendsassa dengeln. Naschkatze und Jungfer piesacken emsig Kummerspeck. Schabracke und Lausbub friemeln frivol Abort. Das fidel Geschmeide ergötzen. Die Kokolores lobpreisen der adrett Grüne Minna. Der kess Fracksausen bauchpinseln. Die halbstark Geschmeide betören. Die hanebüchen Jubelperser. Ei der Daus!' +
-    'Der bierernst Waschweib. Grüne Minna und Pantoffelheld grämen feist Ganove. Das Schabracke stagnieren die adrett Schäferstündchen. Die Haudegen verhaspeln die butterweich Haderlump. Augenweide und Schuhwichse dengeln hurtig Kinkerlitzchen. Der Unhold ergötzen das geflissentlich Lümmel. Flausen und Drückeberger friemeln gemach Naschkatze. Die Augenweide bemuttern der dufte Kuppelei. Das Gemächt friemeln der einfältig Kaffeekränzchen. Der hurtig Himmelfahrtskommando. Die Schelm lobpreisen der blindwütig Ganove. Der einfältig Prahlhans.</p>' +
+    '<p>You are first presented with an overview of peptide sequences identified in the MZSqlite input. From here, you can find ' +
+    '<ul><li>PSMs linked to specific peptide sequences</li><li>PSMs based on score filtering</li>' +
+    '<li>MSMS spectra used in the PSM identification</li><li>Mapping PSMs to the protein, and then mapping the protein to the genomic seqeunce.</li>' +
+    '<li>Save PSM details from curated MSMS scans back to the current Galaxy history</li></ul></p>' +
     '<hr><p class="lead">Actions</p><p><dl>' +
     '<dt>ID Scores</dt><dd>Distribution of spectral matching identification scores</dd>' +
     '<dt>ID Features</dt><dd>Select identification features for display</dd>' +
