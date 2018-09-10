@@ -1583,7 +1583,7 @@ var PeptideView = (function (pv) {
             '<div id="pep-functions" class="btn-group" role="group">' +
             '<button id="btn-load-from-galaxy" type="button" class="btn btn-primary" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Enlists datasets from Galaxy history for loading">Load from Galaxy</button>' +
             '<button id="btn-view-in-protein" type="button" class="btn btn-primary" disabled="disabled" data-toggle="tooltip" data-placement="bottom" title="Displays peptide hits aligned within protein sequences and genomic location of translated genes">Peptide-Protein Viewer</button>' +
-            '<button type="button" class="btn btn-primary dropdown-toggle render-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><span data-toggle="tooltip" data-placement="left" title="' + tt + '">Render </span><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
+            '<button type="button" class="btn btn-primary dropdown-toggle render-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><span data-toggle="tooltip" data-placement="bottom" title="' + tt + '">Render </span><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>' +
             '<ul id="score-type-ul" class="dropdown-menu"></ul>' +
             '</div></div>' +
             '<div class="col-md-1"></div><div class="col-md-5"><input class="pep-filter" size="40" type="text" placeholder="Peptide Sequences for Filtering"/>' +
@@ -1648,30 +1648,7 @@ var PeptideView = (function (pv) {
 
         //Help panel for peptide overview
         $('#peptide_overview_help').on('click', function() {
-            //<div id="master_modal"></div>
-            var m_string = '<div id="pep_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
-                '  <div class="modal-dialog" role="document">\n' +
-                '    <div class="modal-content">\n' +
-                '      <div class="modal-header">\n' +
-                '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-                '        <h4 class="modal-title">Peptide Overview Help</h4>\n' +
-                '      </div>\n' +
-                '      <div class="modal-body">\n' +
-                '        <p>#HELP_TEXT#</p>\n' +
-                '      </div>\n' +
-                '      <div class="modal-footer">\n' +
-                '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
-                '      </div>\n' +
-                '    </div><!-- /.modal-content -->\n' +
-                '  </div><!-- /.modal-dialog -->\n' +
-                '</div><!-- /.modal -->';
-
-            //Text substitutions
-            m_string = m_string.replace('#HELP_TEXT#', PeptideOverviewHelp.text);
-
-            $('#master_modal').empty().append(m_string);
-            $('#pep_help_modal').modal('show');
-
+            BuildHelpPanel.showHelp(PeptideOverviewHelp.text);
         });
     };
 
@@ -2432,6 +2409,16 @@ var RenderPSM = (function(rpm){
     return rpm;
 
 }(RenderPSM || {}));// eslint-disable-line no-use-before-define
+const ScoreFilterHelp = {
+    'text': '<p class="lead">Purpose</p><p>The Scores for Filtering panel allows you to search for PSMs ' + 
+    'based on individual PSM scores. From the <em>Score</em> dropdown, you can choose one or multiple ' + 
+    'PSM scores for fitering.</p><hr>' +
+    '<p class="lead">Actions</p><p><dl>' + 
+    '<dt>All conditions are true</dt><dd>Each chosen score filter must be true</dd>' +
+    '<dt>Any condition is true</dt><dd>Any one score filter is true</dd>' + 
+    '<dt>Filter Now</dt><dd>Produces a table of PSMs fulfilling your score filtering.</dd></p>'
+}
+
 /**
  * Module for allowing user to filter PSMs based on one or more score value.
  */
@@ -2459,7 +2446,8 @@ var ScoreFilterModule = (function(sfm){
     };
 
     sfm.prepareDOM = function() {
-        let dStr = '<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">Scores for Filtering</h3>' +
+        let dStr = '<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title" style="display: inline;">Scores for Filtering</h3>' +
+            '<span id="score_filter_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span>' +
             '</div><div class="panel-body">' +
             '<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" id="dropdown-score" data-toggle="dropdown">Score<span class="caret"></span></button>' +
             '<ul class="dropdown-menu" aria-labelledby="dropdown-score">##LIST##</ul></div>' +
@@ -2515,6 +2503,10 @@ var ScoreFilterModule = (function(sfm){
                 fStr: filterStr,
                 data: sfm.peptideObjs
             });
+        });
+
+        $('#score_filter_help').on('click', function() {
+            BuildHelpPanel.showHelp(ScoreFilterHelp.text);
         });
     };
 
@@ -3367,6 +3359,39 @@ var PeptideSequenceFilter = (function (psf) {
     return psf;
 }(PeptideSequenceFilter || {})); // eslint-disable-line no-use-before-define
 
+
+/**
+ * General utility for building and presenting modal help
+ */
+var BuildHelpPanel = (function (bhp){
+    bhp.domStr = '<div id="user_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
+    '  <div class="modal-dialog" role="document">\n' +
+    '    <div class="modal-content">\n' +
+    '      <div class="modal-header">\n' +
+    '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+    '        <h4 class="modal-title">Peptide Overview Help</h4>\n' +
+    '      </div>\n' +
+    '      <div class="modal-body">\n' +
+    '        <p>#HELP_TEXT#</p>\n' +
+    '      </div>\n' +
+    '      <div class="modal-footer">\n' +
+    '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
+    '      </div>\n' +
+    '    </div><!-- /.modal-content -->\n' +
+    '  </div><!-- /.modal-dialog -->\n' +
+    '</div><!-- /.modal -->';
+
+    bhp.finalDom = '';
+
+    bhp.showHelp = function(helpText) {
+        bhp.finalDom = bhp.domStr.replace('#HELP_TEXT#', helpText);
+        $('#master_modal').empty().append(bhp.finalDom);
+        $('#user_help_modal').modal('show');
+    }
+    return bhp;
+}(BuildHelpPanel || {}));
+
+
 /**
  * There can be many, many scores available to the user. This code allows for
  * managing which scores are visible.
@@ -3626,6 +3651,7 @@ var MVPApplication = (function (app) {
         this.installTo(ScoreFilterModule);
         this.installTo(IGVManager);
         this.installTo(IGVTrackManager);
+        this.installTo(BuildHelpPanel);
 
         ScoreFilterModule.init({});
 
@@ -3678,28 +3704,7 @@ var MVPApplication = (function (app) {
         $('[data-toggle="tooltip"]').tooltip();
 
         $('#mvp_help').on('click', function(){
-            var m_string = '<div id="mvp_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
-                '  <div class="modal-dialog" role="document">\n' +
-                '    <div class="modal-content">\n' +
-                '      <div class="modal-header">\n' +
-                '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-                '        <h4 class="modal-title">MVP Help</h4>\n' +
-                '      </div>\n' +
-                '      <div class="modal-body">\n' +
-                '        <p>#HELP_TEXT#</p>\n' +
-                '      </div>\n' +
-                '      <div class="modal-footer">\n' +
-                '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
-                '      </div>\n' +
-                '    </div><!-- /.modal-content -->\n' +
-                '  </div><!-- /.modal-dialog -->\n' +
-                '</div><!-- /.modal -->';
-
-            //Text substitutions
-            m_string = m_string.replace('#HELP_TEXT#', MVPHelp.text);
-
-            $('#master_modal').empty().append(m_string);
-            $('#mvp_help_modal').modal('show');
+            BuildHelpPanel.showHelp(MVPHelp.text);
         });
     };
 

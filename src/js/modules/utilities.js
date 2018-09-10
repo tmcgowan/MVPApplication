@@ -1,4 +1,37 @@
 
+
+/**
+ * General utility for building and presenting modal help
+ */
+var BuildHelpPanel = (function (bhp){
+    bhp.domStr = '<div id="user_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
+    '  <div class="modal-dialog" role="document">\n' +
+    '    <div class="modal-content">\n' +
+    '      <div class="modal-header">\n' +
+    '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+    '        <h4 class="modal-title">Peptide Overview Help</h4>\n' +
+    '      </div>\n' +
+    '      <div class="modal-body">\n' +
+    '        <p>#HELP_TEXT#</p>\n' +
+    '      </div>\n' +
+    '      <div class="modal-footer">\n' +
+    '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
+    '      </div>\n' +
+    '    </div><!-- /.modal-content -->\n' +
+    '  </div><!-- /.modal-dialog -->\n' +
+    '</div><!-- /.modal -->';
+
+    bhp.finalDom = '';
+
+    bhp.showHelp = function(helpText) {
+        bhp.finalDom = bhp.domStr.replace('#HELP_TEXT#', helpText);
+        $('#master_modal').empty().append(bhp.finalDom);
+        $('#user_help_modal').modal('show');
+    }
+    return bhp;
+}(BuildHelpPanel || {}));
+
+
 /**
  * There can be many, many scores available to the user. This code allows for
  * managing which scores are visible.

@@ -355,16 +355,7 @@ HIS       pale blue  [130,130,210]   PRO         flesh  [220,150,130]
     fill: black;
 }
 
-div.tooltip {
-    position: absolute;
-    text-align: center;
-    padding: 5px;
-    font: 12px sans-serif;
-    background: lightsteelblue;
-    border: 0px;
-    border-radius: 8px;
-    pointer-events: none;
-}
+
 
 .psm {
     fill: #fd8d3c;
@@ -440,3 +431,12 @@ text.oxidation {
     cursor:pointer;
 }
 
+.tooltip {
+    background: steelblue;
+    color: white;
+}
+
+.tooltip-inner {
+    background: steelblue;
+    color:white;
+}

@@ -1,4 +1,14 @@
 
+const ScoreFilterHelp = {
+    'text': '<p class="lead">Purpose</p><p>The Scores for Filtering panel allows you to search for PSMs ' + 
+    'based on individual PSM scores. From the <em>Score</em> dropdown, you can choose one or multiple ' + 
+    'PSM scores for fitering.</p><hr>' +
+    '<p class="lead">Actions</p><p><dl>' + 
+    '<dt>All conditions are true</dt><dd>Each chosen score filter must be true</dd>' +
+    '<dt>Any condition is true</dt><dd>Any one score filter is true</dd>' + 
+    '<dt>Filter Now</dt><dd>Produces a table of PSMs fulfilling your score filtering.</dd></p>'
+}
+
 /**
  * Module for allowing user to filter PSMs based on one or more score value.
  */
@@ -26,7 +36,8 @@ var ScoreFilterModule = (function(sfm){
     };
 
     sfm.prepareDOM = function() {
-        let dStr = '<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">Scores for Filtering</h3>' +
+        let dStr = '<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title" style="display: inline;">Scores for Filtering</h3>' +
+            '<span id="score_filter_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span>' +
             '</div><div class="panel-body">' +
             '<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" id="dropdown-score" data-toggle="dropdown">Score<span class="caret"></span></button>' +
             '<ul class="dropdown-menu" aria-labelledby="dropdown-score">##LIST##</ul></div>' +
@@ -82,6 +93,10 @@ var ScoreFilterModule = (function(sfm){
                 fStr: filterStr,
                 data: sfm.peptideObjs
             });
+        });
+
+        $('#score_filter_help').on('click', function() {
+            BuildHelpPanel.showHelp(ScoreFilterHelp.text);
         });
     };
 

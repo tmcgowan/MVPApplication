@@ -136,6 +136,7 @@ var MVPApplication = (function (app) {
         this.installTo(ScoreFilterModule);
         this.installTo(IGVManager);
         this.installTo(IGVTrackManager);
+        this.installTo(BuildHelpPanel);
 
         ScoreFilterModule.init({});
 
@@ -188,28 +189,7 @@ var MVPApplication = (function (app) {
         $('[data-toggle="tooltip"]').tooltip();
 
         $('#mvp_help').on('click', function(){
-            var m_string = '<div id="mvp_help_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
-                '  <div class="modal-dialog" role="document">\n' +
-                '    <div class="modal-content">\n' +
-                '      <div class="modal-header">\n' +
-                '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-                '        <h4 class="modal-title">MVP Help</h4>\n' +
-                '      </div>\n' +
-                '      <div class="modal-body">\n' +
-                '        <p>#HELP_TEXT#</p>\n' +
-                '      </div>\n' +
-                '      <div class="modal-footer">\n' +
-                '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
-                '      </div>\n' +
-                '    </div><!-- /.modal-content -->\n' +
-                '  </div><!-- /.modal-dialog -->\n' +
-                '</div><!-- /.modal -->';
-
-            //Text substitutions
-            m_string = m_string.replace('#HELP_TEXT#', MVPHelp.text);
-
-            $('#master_modal').empty().append(m_string);
-            $('#mvp_help_modal').modal('show');
+            BuildHelpPanel.showHelp(MVPHelp.text);
         });
     };
 
