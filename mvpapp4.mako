@@ -25,7 +25,7 @@
 <nav class="navbar navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">MVP Viewer<span id="mvp_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span></a>
+            <a class="navbar-brand" href="#">MVP Viewer<span id="mvp_help" class="glyphicon glyphicon-question-sign" style="padding: 5px"></span><span class="sr-only">Help?</span><span id="mvp_config" class="glyphicon glyphicon-cog" style="padding: 5px"></span></a>
         </div>
         <div id="user_btns">
                 <div id="app_btns" class="btn-group" role="group">

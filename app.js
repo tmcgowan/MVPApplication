@@ -30,7 +30,9 @@ var MVPApplication = (function (app) {
     app.userDefaults = null;
 
     //Hold some basic defaults. User can override.
-    app.app_defaults = {};
+    app.app_defaults = {
+        "tool_tip_visible": true
+    };
 
     /**
      * Allows objects to subscribe to an event.
@@ -121,9 +123,24 @@ var MVPApplication = (function (app) {
                     $('html, body').animate({
                         scrollTop: ($('#fdr_div').offset().top)
                     },500);
-                    $('#fdr_module  ').tooltip('hide')
+                    $('#fdr_module').tooltip('hide')
                 });
 
+        });
+
+        this.subscribe('UserChangedDefaults', function(data){
+            Object.keys(data).forEach(function(k){
+                console.log('UserChangedDefaults ' + k + " : " + data[k]);
+                app.app_defaults[k] = data[k];
+                if (k === 'tool_tip_visible') {
+                    if (data[k]) {
+                        $('[data-toggle="tooltip"]').tooltip();
+                    } else {
+                        $('[data-toggle="tooltip"]').tooltip('destroy');
+                    }
+                }
+
+            });
         });
 
         this.installTo(ScoreSummary);
@@ -139,6 +156,7 @@ var MVPApplication = (function (app) {
         this.installTo(IGVManager);
         this.installTo(IGVTrackManager);
         this.installTo(BuildHelpPanel);
+        this.installTo(ConfigModal);
 
         ScoreFilterModule.init({});
 
@@ -192,6 +210,10 @@ var MVPApplication = (function (app) {
 
         $('#mvp_help').on('click', function(){
             BuildHelpPanel.showHelp(MVPHelp.text);
+        });
+
+        $('#mvp_config').on('click', function(){
+           ConfigModal.showConfig();
         });
     };
 

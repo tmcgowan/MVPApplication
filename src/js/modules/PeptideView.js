@@ -11,8 +11,8 @@ const PeptideOverviewHelp = {
         '<p class="lead">Actions</p><p><dl>' +
         '<dt>PSMs for Selected Peptides</dt>Show PSMs for all selected peptide sequences in the Peptide Overview table. There will be <strong>no</strong> filtering of PSMs.<dd></dd>' +
         '<dt>PSMs filtered by Score</dt><dd>You can filter PSMs by their associated scores. You can filter just the PSMs linked with the chosen peptide sequences or filter for PSMs from the entire database. To choose scores, a filtering panel will become visible.</dd>' +
-        '<dt>Load from Galaxy</dt><dd>You can filter peptide seq</dd>' +
-        '<dt>Peptide-Protein Viewer</dt><dd>Displays peptide hits aligned within protein sequences and genomic location of translated genes</dd>' +
+        '<dt>Load from Galaxy</dt><dd>You can filter peptide sequences by loading a single-column tabular file from Galaxy. The column must contain a peptide sequence on each line, one per line.</dd>' +
+        '<dt>Peptide-Protein Viewer</dt><dd>Displays peptide hits aligned within protein sequences and genomic location of translated genes. An <a href="https://igv.org/" target="_blank">IGV</a> viewer will be generated and will be fully interactive.</dd>' +
         '<dt>Render</dt><dd>Generate a single MSMS scan for each peptide in the overview table. The best MSMS will be determined by the chosen score.</dd>' +
         '<dt>Filter</dt><dd>Filter peptides based on sequence information query</dd>' +
         '</dl></p>'

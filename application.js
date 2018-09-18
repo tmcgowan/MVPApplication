@@ -1530,8 +1530,8 @@ const PeptideOverviewHelp = {
         '<p class="lead">Actions</p><p><dl>' +
         '<dt>PSMs for Selected Peptides</dt>Show PSMs for all selected peptide sequences in the Peptide Overview table. There will be <strong>no</strong> filtering of PSMs.<dd></dd>' +
         '<dt>PSMs filtered by Score</dt><dd>You can filter PSMs by their associated scores. You can filter just the PSMs linked with the chosen peptide sequences or filter for PSMs from the entire database. To choose scores, a filtering panel will become visible.</dd>' +
-        '<dt>Load from Galaxy</dt><dd>You can filter peptide seq</dd>' +
-        '<dt>Peptide-Protein Viewer</dt><dd>Displays peptide hits aligned within protein sequences and genomic location of translated genes</dd>' +
+        '<dt>Load from Galaxy</dt><dd>You can filter peptide sequences by loading a single-column tabular file from Galaxy. The column must contain a peptide sequence on each line, one per line.</dd>' +
+        '<dt>Peptide-Protein Viewer</dt><dd>Displays peptide hits aligned within protein sequences and genomic location of translated genes. An <a href="https://igv.org/" target="_blank">IGV</a> viewer will be generated and will be fully interactive.</dd>' +
         '<dt>Render</dt><dd>Generate a single MSMS scan for each peptide in the overview table. The best MSMS will be determined by the chosen score.</dd>' +
         '<dt>Filter</dt><dd>Filter peptides based on sequence information query</dd>' +
         '</dl></p>'
@@ -2038,6 +2038,11 @@ var PeptideView = (function (pv) {
     return pv;
 
 }(PeptideView || {}));// eslint-disable-line no-use-before-define
+const LorikeetHelp = {
+    'text': '<p class="lead">Purpose</p><p>This is the Lorikeet MSMS viewer. The current MSMS scan is for the PSM you just clicked on in the PSM Detail panel. ' +
+    'On the left side of the panel, you can toggle various plotting elements. On the right side, you see a fragment table, with identified fragments highlighted.</p>' +
+    '<p>Along the top, you can delete, thumbs up or thumbs down the scan. Any scan receiving a thumbs-up can have it\'s PSM details exported bak to Galaxy.</p>'
+};
 
 /**
  * The lorikeet options instance
@@ -2152,8 +2157,8 @@ var RenderPSM = (function(rpm){
     };
 
     rpm.renderSpectrum = function(spectrumID){
-        var slug = '<div id="#ID#" class="panel panel-info"><div class="panel-heading">' +
-            '<div class="row"><div class="col-md-10"><span class="aa aa_header">#PH#</span></div>' +
+        var slug = '<div id="#ID#" class="panel panel-info col-md-12" style="background-color: #d9edf7"><div class="panel-heading">' +
+            '<div class="row"><div class="col-md-10"><span class="aa aa_header">#PH#</span><span class="glyphicon glyphicon-question-sign lorikeet_help" style="padding: 5px"></span><span class="sr-only">Help?</span></div>' +
             '<div class="col-md-2"<div class="btn-group btn-group-xs" role="group" style="padding-bottom: 5px;">' +
             '<button value="#ID#" spec_id="#SID#" type="button" class="btn btn-default delete-scan"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
             '<button value="#ID#" spec_id="#SID#" type="button" class="btn btn-default verify-scan"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button>' +
@@ -2186,6 +2191,9 @@ var RenderPSM = (function(rpm){
         $('#lorikeet_zone').prepend($.parseHTML(slug));
         $('#lm_' + scanIndex).specview(lObj);
 
+        $('.lorikeet_help').on('click', function(){
+            BuildHelpPanel.showHelp(LorikeetHelp.text);
+        });
 
         //Wire the review buttons
         $('.unverify-scan').on('click', function(){
@@ -3399,6 +3407,61 @@ var BuildHelpPanel = (function (bhp){
     return bhp;
 }(BuildHelpPanel || {}));
 
+/**
+ * Handle general configurations for the app.
+ */
+var ConfigModal = (function (cm){
+
+    cm.userDefaults = {
+        'tool_tip_visible': true
+    };
+
+    cm.domStr = '<div id="app_config_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
+        '  <div class="modal-dialog" role="document">\n' +
+        '    <div class="modal-content">\n' +
+        '      <div class="modal-header">\n' +
+        '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+        '        <h4 class="modal-title">Configuration</h4>\n' +
+        '      </div>\n' +
+        '      <div class="modal-body">' +
+        '       <div>' +
+        '        <input type="checkbox" id="config_tooltip" class="app_config" value="tool_tip_visible"/>' +
+        '        <label for="config_tooltip">Enable tooltips</label>' +
+        '       </div></div>' +
+        '      <div class="modal-footer">\n' +
+        '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+        '        <button id="save_config_change" type="button" class="btn btn-default">Save Changes</button>' +
+        '      </div>\n' +
+        '    </div><!-- /.modal-content -->\n' +
+        '  </div><!-- /.modal-dialog -->\n' +
+        '</div><!-- /.modal -->';
+
+    cm.showConfig = function(){
+        $('#master_modal').empty().append(cm.domStr);
+
+        Object.keys(cm.userDefaults).forEach(function (k) {
+            var s = 'input[value="' + k + '"]';
+            document.querySelector(s).checked = cm.userDefaults[k];
+        });
+
+        $('#save_config_change').on('click', function(){
+            var configs = document.querySelectorAll('input[class="app_config"]');
+            var msgObj = {};
+            configs.forEach(function (cv)  {
+                msgObj[cv.getAttribute('value')] = cv.checked;
+                cm.userDefaults[cv.getAttribute('value')] = cv.checked;
+            });
+            cm.publish('UserChangedDefaults', msgObj);
+            $('#app_config_modal').modal('hide');
+        });
+
+        $('#app_config_modal').modal('show');
+    };
+
+    return cm;
+
+}(ConfigModal || {}));
+
 
 /**
  * There can be many, many scores available to the user. This code allows for
@@ -3553,7 +3616,9 @@ var MVPApplication = (function (app) {
     app.userDefaults = null;
 
     //Hold some basic defaults. User can override.
-    app.app_defaults = {};
+    app.app_defaults = {
+        "tool_tip_visible": true
+    };
 
     /**
      * Allows objects to subscribe to an event.
@@ -3644,9 +3709,24 @@ var MVPApplication = (function (app) {
                     $('html, body').animate({
                         scrollTop: ($('#fdr_div').offset().top)
                     },500);
-                    $('#fdr_module  ').tooltip('hide')
+                    $('#fdr_module').tooltip('hide')
                 });
 
+        });
+
+        this.subscribe('UserChangedDefaults', function(data){
+            Object.keys(data).forEach(function(k){
+                console.log('UserChangedDefaults ' + k + " : " + data[k]);
+                app.app_defaults[k] = data[k];
+                if (k === 'tool_tip_visible') {
+                    if (data[k]) {
+                        $('[data-toggle="tooltip"]').tooltip();
+                    } else {
+                        $('[data-toggle="tooltip"]').tooltip('destroy');
+                    }
+                }
+
+            });
         });
 
         this.installTo(ScoreSummary);
@@ -3662,6 +3742,7 @@ var MVPApplication = (function (app) {
         this.installTo(IGVManager);
         this.installTo(IGVTrackManager);
         this.installTo(BuildHelpPanel);
+        this.installTo(ConfigModal);
 
         ScoreFilterModule.init({});
 
@@ -3715,6 +3796,10 @@ var MVPApplication = (function (app) {
 
         $('#mvp_help').on('click', function(){
             BuildHelpPanel.showHelp(MVPHelp.text);
+        });
+
+        $('#mvp_config').on('click', function(){
+           ConfigModal.showConfig();
         });
     };
 

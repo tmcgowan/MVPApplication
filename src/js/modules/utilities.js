@@ -31,6 +31,61 @@ var BuildHelpPanel = (function (bhp){
     return bhp;
 }(BuildHelpPanel || {}));
 
+/**
+ * Handle general configurations for the app.
+ */
+var ConfigModal = (function (cm){
+
+    cm.userDefaults = {
+        'tool_tip_visible': true
+    };
+
+    cm.domStr = '<div id="app_config_modal" class="modal fade" tabindex="-1" role="dialog">\n' +
+        '  <div class="modal-dialog" role="document">\n' +
+        '    <div class="modal-content">\n' +
+        '      <div class="modal-header">\n' +
+        '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+        '        <h4 class="modal-title">Configuration</h4>\n' +
+        '      </div>\n' +
+        '      <div class="modal-body">' +
+        '       <div>' +
+        '        <input type="checkbox" id="config_tooltip" class="app_config" value="tool_tip_visible"/>' +
+        '        <label for="config_tooltip">Enable tooltips</label>' +
+        '       </div></div>' +
+        '      <div class="modal-footer">\n' +
+        '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+        '        <button id="save_config_change" type="button" class="btn btn-default">Save Changes</button>' +
+        '      </div>\n' +
+        '    </div><!-- /.modal-content -->\n' +
+        '  </div><!-- /.modal-dialog -->\n' +
+        '</div><!-- /.modal -->';
+
+    cm.showConfig = function(){
+        $('#master_modal').empty().append(cm.domStr);
+
+        Object.keys(cm.userDefaults).forEach(function (k) {
+            var s = 'input[value="' + k + '"]';
+            document.querySelector(s).checked = cm.userDefaults[k];
+        });
+
+        $('#save_config_change').on('click', function(){
+            var configs = document.querySelectorAll('input[class="app_config"]');
+            var msgObj = {};
+            configs.forEach(function (cv)  {
+                msgObj[cv.getAttribute('value')] = cv.checked;
+                cm.userDefaults[cv.getAttribute('value')] = cv.checked;
+            });
+            cm.publish('UserChangedDefaults', msgObj);
+            $('#app_config_modal').modal('hide');
+        });
+
+        $('#app_config_modal').modal('show');
+    };
+
+    return cm;
+
+}(ConfigModal || {}));
+
 
 /**
  * There can be many, many scores available to the user. This code allows for

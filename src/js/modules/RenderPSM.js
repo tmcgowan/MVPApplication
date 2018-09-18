@@ -1,4 +1,9 @@
 
+const LorikeetHelp = {
+    'text': '<p class="lead">Purpose</p><p>This is the Lorikeet MSMS viewer. The current MSMS scan is for the PSM you just clicked on in the PSM Detail panel. ' +
+    'On the left side of the panel, you can toggle various plotting elements. On the right side, you see a fragment table, with identified fragments highlighted.</p>' +
+    '<p>Along the top, you can delete, thumbs up or thumbs down the scan. Any scan receiving a thumbs-up can have it\'s PSM details exported bak to Galaxy.</p>'
+};
 
 /**
  * The lorikeet options instance
@@ -113,8 +118,8 @@ var RenderPSM = (function(rpm){
     };
 
     rpm.renderSpectrum = function(spectrumID){
-        var slug = '<div id="#ID#" class="panel panel-info"><div class="panel-heading">' +
-            '<div class="row"><div class="col-md-10"><span class="aa aa_header">#PH#</span></div>' +
+        var slug = '<div id="#ID#" class="panel panel-info col-md-12" style="background-color: #d9edf7"><div class="panel-heading">' +
+            '<div class="row"><div class="col-md-10"><span class="aa aa_header">#PH#</span><span class="glyphicon glyphicon-question-sign lorikeet_help" style="padding: 5px"></span><span class="sr-only">Help?</span></div>' +
             '<div class="col-md-2"<div class="btn-group btn-group-xs" role="group" style="padding-bottom: 5px;">' +
             '<button value="#ID#" spec_id="#SID#" type="button" class="btn btn-default delete-scan"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
             '<button value="#ID#" spec_id="#SID#" type="button" class="btn btn-default verify-scan"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button>' +
@@ -147,6 +152,9 @@ var RenderPSM = (function(rpm){
         $('#lorikeet_zone').prepend($.parseHTML(slug));
         $('#lm_' + scanIndex).specview(lObj);
 
+        $('.lorikeet_help').on('click', function(){
+            BuildHelpPanel.showHelp(LorikeetHelp.text);
+        });
 
         //Wire the review buttons
         $('.unverify-scan').on('click', function(){
